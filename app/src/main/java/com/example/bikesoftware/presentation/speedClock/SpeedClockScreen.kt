@@ -31,8 +31,8 @@ import com.example.bikesoftware.utils.toDegrees
 import com.example.bikesoftware.utils.toRadians
 import kotlin.math.*
 
-const val SHADOW_ALPHA = 50
-const val SHADOW_RADIUS = 60f
+const val SHADOW_ALPHA = 255
+const val SHADOW_RADIUS = 800f
 private const val NUMBER_SPACE = 5
 private const val NINETY_DEGREES_FLIP = 90
 private const val INDICATOR_SIDE_WIDTH = 4f
@@ -72,19 +72,19 @@ fun SpeedClockScreen(
         Text(
             buildAnnotatedString {
                 withStyle(
-                    style = SpanStyle(color = Color.Black, fontSize = 48.sp)
+                    style = SpanStyle(color = Color.White, fontSize = 96.sp)
                 ) {
                     append(weight.toString())
                 }
                 withStyle(
-                    style = SpanStyle(color = Color.Green, fontSize = 16.sp)
+                    style = SpanStyle(color = Color.Green, fontSize = 48.sp)
                 ) {
                     append("Km/h")
                 }
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 120.dp),
+                .padding(bottom = 160.dp),
             fontFamily = FontFamily(Font(R.font.lexend_thin)),
             fontWeight = FontWeight.Bold
         )
