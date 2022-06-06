@@ -10,6 +10,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,7 +22,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 
-private const val ZOOM_VALUE = 19f
+private const val CLOSE_ZOOM = 19f
+private const val FAR_AWAY_ZOOM = 13f
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
 
@@ -36,8 +38,8 @@ fun MapScreen(
     val mapProperties by remember {
         mutableStateOf(
             MapProperties(
-                maxZoomPreference = ZOOM_VALUE,
-                minZoomPreference = ZOOM_VALUE,
+                maxZoomPreference = CLOSE_ZOOM,
+                minZoomPreference = FAR_AWAY_ZOOM,
                 isMyLocationEnabled = true,
                 mapType = MapType.SATELLITE,
             )
@@ -54,6 +56,8 @@ fun MapScreen(
                 rotationGesturesEnabled = false,
                 scrollGesturesEnabled = false,
                 tiltGesturesEnabled = false,
+                zoomGesturesEnabled = false,
+                scrollGesturesEnabledDuringRotateOrZoom = false
             )
         )
     }
@@ -66,9 +70,11 @@ fun MapScreen(
         mutableStateOf(false)
     }
 
+    fun getZoom() = if (isRideStarted) CLOSE_ZOOM else FAR_AWAY_ZOOM
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         currentLocation?.let {
-            position = CameraPosition.fromLatLngZoom(it, ZOOM_VALUE)
+            position = CameraPosition.fromLatLngZoom(it, getZoom())
             isFirstZoom = false
         }
     }
@@ -79,7 +85,7 @@ fun MapScreen(
         viewModel.viewModelScope.launch {
             cameraPositionState.animate(
                 CameraUpdateFactory.newCameraPosition(
-                    CameraPosition(userLocation, ZOOM_VALUE, TILT, BEARING)
+                    CameraPosition(userLocation, getZoom(), TILT, BEARING)
                 )
             )
         }
@@ -117,6 +123,9 @@ fun MapScreen(
 @Composable
 private fun DrawBikePath(locations: List<LatLng>) {
     repeat(locations.size) {
-        Polyline(points = locations)
+        Polyline(
+            points = locations,
+            color = Color.Green
+        )
     }
 }
