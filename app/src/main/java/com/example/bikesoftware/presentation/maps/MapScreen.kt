@@ -3,16 +3,13 @@ package com.example.bikesoftware.presentation.maps
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bikesoftware.presentation.maps.AnimationType.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -20,42 +17,65 @@ import com.google.maps.android.compose.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val FIRST_ZOOM = 12f
-private const val SECOND_ZOOM = 17f
-private const val THIRD_ZOOM = 19f
-private const val TILT = 4f
-private const val BEARING = 90f
+private const val ZOOM_VALUE = 19f
+private const val DEFAULT_ZOOM = 10f
+private const val TILT = 35f // View angle in degrees
+private const val BEARING = 0f // North direction
 
 @Composable
-fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
+fun MapScreen(
+    userLocation: LatLng,
+    viewModel: MapViewModel = hiltViewModel()
+) {
 
-    var mapProperties by remember {
+    val mapProperties by remember {
         mutableStateOf(
             MapProperties(
-                maxZoomPreference = 20f,
-                minZoomPreference = 5f,
+                maxZoomPreference = ZOOM_VALUE,
+                minZoomPreference = ZOOM_VALUE,
                 isMyLocationEnabled = true,
-                mapType = MapType.SATELLITE
+                mapType = MapType.SATELLITE,
             )
         )
     }
-    var mapUiSettings by remember {
-        mutableStateOf(MapUiSettings(mapToolbarEnabled = false, zoomControlsEnabled = false))
+
+    val mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(
+                mapToolbarEnabled = false,
+                zoomControlsEnabled = false,
+                compassEnabled = false,
+                myLocationButtonEnabled = false,
+                zoomGesturesEnabled = false,
+                rotationGesturesEnabled = false,
+                scrollGesturesEnabled = false,
+                tiltGesturesEnabled = false,
+                scrollGesturesEnabledDuringRotateOrZoom = false
+            )
+        )
     }
 
-    val myLocation = LatLng(50.019511, 20.020302)
+    var isFirstZoom by remember {
+        mutableStateOf(true)
+    }
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(myLocation, 11f)
+        position = CameraPosition.fromLatLngZoom(userLocation, DEFAULT_ZOOM)
+        isFirstZoom = false
     }
 
     val scaffoldState = rememberScaffoldState()
 
-    var animationType by remember {
-        mutableStateOf(FIRST)
-    }
+    fun zoomWithAnimation(cameraPositionState: CameraPositionState, userLocation: LatLng) {
+        viewModel.viewModelScope.launch {
+            delay(2000) // TODO maps sometimes is not loading as it should this delay seems to help - INVESTIGATE!
 
-    fun setAnimationType(animation: AnimationType) {
-        animationType = animation
+            cameraPositionState.animate(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(userLocation, ZOOM_VALUE, TILT, BEARING)
+                )
+            )
+        }
     }
 
     Scaffold(scaffoldState = scaffoldState) {
@@ -68,46 +88,9 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 uiSettings = mapUiSettings,
                 cameraPositionState = cameraPositionState
             ) {
-
-            }
-
-            Button(onClick = {
-                viewModel.viewModelScope.launch {
-                    zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                        setAnimationType(SECOND)
-                        delay(1000)
-
-                        zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                            setAnimationType(THIRD)
-                            delay(700)
-
-                            zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                                setAnimationType(FIRST)
-                            }
-                        }
-                    }
-                }
-            }) {
-                Text(text = "Go to hardcoded location")
+                if (!isFirstZoom) zoomWithAnimation(cameraPositionState, userLocation)
             }
         }
     }
-}
 
-fun AnimationType.getZoomValue() = when (this) {
-    FIRST -> FIRST_ZOOM
-    SECOND -> SECOND_ZOOM
-    THIRD -> THIRD_ZOOM
-}
-
-suspend fun zoomWithAnimation(cameraPositionState: CameraPositionState, myLocation: LatLng, zoom: Float) {
-    cameraPositionState.animate(
-        CameraUpdateFactory.newCameraPosition(
-            CameraPosition(myLocation, zoom, TILT, BEARING)
-        )
-    )
-}
-
-enum class AnimationType {
-    FIRST, SECOND, THIRD
 }
