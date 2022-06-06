@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Bike software</string>
+    <string name="no_location_permission_message">Please turn on your location permission</string>
 </resources>
