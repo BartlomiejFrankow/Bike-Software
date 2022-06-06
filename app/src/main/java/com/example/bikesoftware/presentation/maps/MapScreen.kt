@@ -8,54 +8,81 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bikesoftware.presentation.maps.AnimationType.*
+import com.example.bikesoftware.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val FIRST_ZOOM = 12f
-private const val SECOND_ZOOM = 17f
-private const val THIRD_ZOOM = 19f
-private const val TILT = 4f
-private const val BEARING = 90f
+private const val ZOOM_VALUE = 19f
+private const val TILT = 35f // View angle in degrees
+private const val BEARING = 0f // North direction
 
 @Composable
-fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
+fun MapScreen(
+    currentLocation: LatLng?,
+    locations: List<LatLng>,
+    onStartStopClick: (isStarted: Boolean) -> Unit,
+    viewModel: MapViewModel = hiltViewModel()
+) {
 
-    var mapProperties by remember {
+    val mapProperties by remember {
         mutableStateOf(
             MapProperties(
-                maxZoomPreference = 20f,
-                minZoomPreference = 5f,
+                maxZoomPreference = ZOOM_VALUE,
+                minZoomPreference = ZOOM_VALUE,
                 isMyLocationEnabled = true,
-                mapType = MapType.SATELLITE
+                mapType = MapType.SATELLITE,
             )
         )
     }
-    var mapUiSettings by remember {
-        mutableStateOf(MapUiSettings(mapToolbarEnabled = false, zoomControlsEnabled = false))
+
+    val mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(
+                mapToolbarEnabled = false,
+                zoomControlsEnabled = false,
+                compassEnabled = false,
+                myLocationButtonEnabled = false,
+                rotationGesturesEnabled = false,
+                scrollGesturesEnabled = false,
+                tiltGesturesEnabled = false,
+            )
+        )
     }
 
-    val myLocation = LatLng(50.019511, 20.020302)
+    var isFirstZoom by remember {
+        mutableStateOf(true)
+    }
+
+    var isRideStarted by remember {
+        mutableStateOf(false)
+    }
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(myLocation, 11f)
+        currentLocation?.let {
+            position = CameraPosition.fromLatLngZoom(it, ZOOM_VALUE)
+            isFirstZoom = false
+        }
     }
 
     val scaffoldState = rememberScaffoldState()
 
-    var animationType by remember {
-        mutableStateOf(FIRST)
-    }
-
-    fun setAnimationType(animation: AnimationType) {
-        animationType = animation
+    fun zoomWithAnimation(cameraPositionState: CameraPositionState, userLocation: LatLng) {
+        viewModel.viewModelScope.launch {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(userLocation, ZOOM_VALUE, TILT, BEARING)
+                )
+            )
+        }
     }
 
     Scaffold(scaffoldState = scaffoldState) {
@@ -68,46 +95,28 @@ fun MapScreen(viewModel: MapViewModel = hiltViewModel()) {
                 uiSettings = mapUiSettings,
                 cameraPositionState = cameraPositionState
             ) {
+                if (!isFirstZoom && currentLocation != null) zoomWithAnimation(cameraPositionState, currentLocation)
 
+                DrawBikePath(locations)
             }
 
-            Button(onClick = {
-                viewModel.viewModelScope.launch {
-                    zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                        setAnimationType(SECOND)
-                        delay(1000)
-
-                        zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                            setAnimationType(THIRD)
-                            delay(700)
-
-                            zoomWithAnimation(cameraPositionState, myLocation, animationType.getZoomValue()).also {
-                                setAnimationType(FIRST)
-                            }
-                        }
-                    }
+            Button(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 256.dp),
+                onClick = {
+                    isRideStarted = !isRideStarted
+                    onStartStopClick(isRideStarted)
                 }
-            }) {
-                Text(text = "Go to hardcoded location")
+            ) {
+                Text(text = if (isRideStarted) stringResource(R.string.stop_ride) else stringResource(R.string.start_ride))
             }
         }
     }
 }
 
-fun AnimationType.getZoomValue() = when (this) {
-    FIRST -> FIRST_ZOOM
-    SECOND -> SECOND_ZOOM
-    THIRD -> THIRD_ZOOM
-}
-
-suspend fun zoomWithAnimation(cameraPositionState: CameraPositionState, myLocation: LatLng, zoom: Float) {
-    cameraPositionState.animate(
-        CameraUpdateFactory.newCameraPosition(
-            CameraPosition(myLocation, zoom, TILT, BEARING)
-        )
-    )
-}
-
-enum class AnimationType {
-    FIRST, SECOND, THIRD
+@Composable
+private fun DrawBikePath(locations: List<LatLng>) {
+    repeat(locations.size) {
+        Polyline(points = locations)
+    }
 }

@@ -46,7 +46,7 @@ fun SpeedClockScreen(
     style: ScaleStyle = ScaleStyle(),
     scaleStartValue: Int = SCALE_START_VALUE,
     scaleEndValue: Int = SCALE_END_VALUE,
-    initialWeight: Int = START_POINT
+    currentSpeed: Int = START_POINT
 ) {
     var center by remember {
         mutableStateOf(Offset.Zero)
@@ -63,9 +63,6 @@ fun SpeedClockScreen(
     var oldAngle by remember {
         mutableStateOf(angle)
     }
-    var weight by remember {
-        mutableStateOf(START_POINT)
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -74,7 +71,7 @@ fun SpeedClockScreen(
                 withStyle(
                     style = SpanStyle(color = Color.White, fontSize = 96.sp)
                 ) {
-                    append(weight.toString())
+                    append(currentSpeed.toString())
                 }
                 withStyle(
                     style = SpanStyle(color = Color.Green, fontSize = 48.sp)
@@ -84,7 +81,7 @@ fun SpeedClockScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 160.dp),
+                .padding(bottom = 140.dp),
             fontFamily = FontFamily(Font(R.font.lexend_thin)),
             fontWeight = FontWeight.Bold
         )
@@ -105,20 +102,8 @@ fun SpeedClockScreen(
                         onDragEnd = {
                             oldAngle = angle
                         }
-                    ) { change, _ ->
-                        val touchAngle = -atan2(
-                            y = circleCenter.x - change.position.x,
-                            x = circleCenter.y - change.position.y
-                        ).toDegrees()
+                    ) { _, _ ->
 
-                        val newAngle = oldAngle + (touchAngle - dragStateAngle)
-
-                        angle = newAngle.coerceIn(
-                            minimumValue = initialWeight - scaleEndValue.toFloat(),
-                            maximumValue = initialWeight - scaleStartValue.toFloat()
-                        )
-
-                        weight = (initialWeight - angle).roundToInt()
                     }
                 }
         ) {
@@ -133,7 +118,7 @@ fun SpeedClockScreen(
             drawScale(circleCenter, style)
 
             for (currentWeight in scaleStartValue..scaleEndValue) {
-                val angleInRadians = (currentWeight - initialWeight + angle - NINETY_DEGREES_FLIP).toRadians()
+                val angleInRadians = (currentWeight - currentSpeed + angle - NINETY_DEGREES_FLIP).toRadians()
                 val lineType = getLineType(currentWeight)
                 val lineLength = getLineLength(lineType, style).toPx()
 
