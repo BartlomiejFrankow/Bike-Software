@@ -3,28 +3,33 @@ package com.example.bikesoftware.presentation.maps
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bikesoftware.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val ZOOM_VALUE = 19f
-private const val DEFAULT_ZOOM = 10f
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
 
 @Composable
 fun MapScreen(
-    userLocation: LatLng,
+    currentLocation: LatLng?,
+    locations: List<LatLng>,
+    onStartStopClick: (isStarted: Boolean) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
 
@@ -46,11 +51,9 @@ fun MapScreen(
                 zoomControlsEnabled = false,
                 compassEnabled = false,
                 myLocationButtonEnabled = false,
-                zoomGesturesEnabled = false,
                 rotationGesturesEnabled = false,
                 scrollGesturesEnabled = false,
                 tiltGesturesEnabled = false,
-                scrollGesturesEnabledDuringRotateOrZoom = false
             )
         )
     }
@@ -59,17 +62,21 @@ fun MapScreen(
         mutableStateOf(true)
     }
 
+    var isRideStarted by remember {
+        mutableStateOf(false)
+    }
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(userLocation, DEFAULT_ZOOM)
-        isFirstZoom = false
+        currentLocation?.let {
+            position = CameraPosition.fromLatLngZoom(it, ZOOM_VALUE)
+            isFirstZoom = false
+        }
     }
 
     val scaffoldState = rememberScaffoldState()
 
     fun zoomWithAnimation(cameraPositionState: CameraPositionState, userLocation: LatLng) {
         viewModel.viewModelScope.launch {
-            delay(2000) // TODO maps sometimes is not loading as it should this delay seems to help - INVESTIGATE!
-
             cameraPositionState.animate(
                 CameraUpdateFactory.newCameraPosition(
                     CameraPosition(userLocation, ZOOM_VALUE, TILT, BEARING)
@@ -88,9 +95,28 @@ fun MapScreen(
                 uiSettings = mapUiSettings,
                 cameraPositionState = cameraPositionState
             ) {
-                if (!isFirstZoom) zoomWithAnimation(cameraPositionState, userLocation)
+                if (!isFirstZoom && currentLocation != null) zoomWithAnimation(cameraPositionState, currentLocation)
+
+                DrawBikePath(locations)
+            }
+
+            Button(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 256.dp),
+                onClick = {
+                    isRideStarted = !isRideStarted
+                    onStartStopClick(isRideStarted)
+                }
+            ) {
+                Text(text = if (isRideStarted) stringResource(R.string.stop_ride) else stringResource(R.string.start_ride))
             }
         }
     }
+}
 
+@Composable
+private fun DrawBikePath(locations: List<LatLng>) {
+    repeat(locations.size) {
+        Polyline(points = locations)
+    }
 }

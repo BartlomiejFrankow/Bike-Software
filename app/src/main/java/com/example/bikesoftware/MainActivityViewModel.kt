@@ -2,7 +2,7 @@ package com.example.bikesoftware
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bikesoftware.UserLocationViewState.*
+import com.example.bikesoftware.UserLocationViewState.UserLocationData
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -21,6 +21,10 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
     private val _viewState = MutableSharedFlow<UserLocationViewState>()
     val viewState = _viewState.asSharedFlow()
 
+    var polylineLocations = mutableListOf<LatLng>()
+
+    var shouldTrackPolylineLocations = false
+
     var locationCallback = LocationCallbackReference(object : LocationCallback() {
 
         override fun onLocationAvailability(availability: LocationAvailability) {
@@ -35,6 +39,8 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.forEach {
                 viewModelScope.launch {
+                    if (shouldTrackPolylineLocations) polylineLocations.add(LatLng(it.latitude, it.longitude))
+
                     _viewState.emit(UserLocationData(LatLng(it.latitude, it.longitude), it.speed.roundToInt()))
                 }
             }
@@ -42,9 +48,9 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
     })
 
     val locationRequest = LocationRequest.create().apply {
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        interval = 0
-        fastestInterval = 0
+        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        interval = 5000
+        fastestInterval = 1000
     }
 
 }
