@@ -22,7 +22,6 @@ import com.example.bikesoftware.ui.theme.BikeSoftwareTheme
 import com.example.bikesoftware.utils.FOREGROUND_LOCATION_PERMISSIONS
 import com.example.bikesoftware.utils.LOCATION_REQUEST_CODE
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -60,12 +59,19 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun setMapUI() {
         getLocation()
-        showUi(UserLocationData(LatLng(50.054143, 19.935028), 0)) // default Kraków Wawel location ;)
+        showUi(UserLocationData(null, 0))
     }
 
     @Composable
     private fun showUi(userLocationData: UserLocationData) {
-        MapScreen(userLocationData.latLng)
+
+        MapScreen(
+            currentLocation = userLocationData.currentLocation,
+            locations = viewModel.polylineLocations,
+            onStartStopClick = { isStarted ->
+                viewModel.shouldTrackPolylineLocations = isStarted
+            }
+        )
         SpeedClockScreen(currentSpeed = userLocationData.speed)
     }
 

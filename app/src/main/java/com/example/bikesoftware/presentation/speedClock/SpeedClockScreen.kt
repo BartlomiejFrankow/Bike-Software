@@ -81,7 +81,7 @@ fun SpeedClockScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 160.dp),
+                .padding(bottom = 140.dp),
             fontFamily = FontFamily(Font(R.font.lexend_thin)),
             fontWeight = FontWeight.Bold
         )
