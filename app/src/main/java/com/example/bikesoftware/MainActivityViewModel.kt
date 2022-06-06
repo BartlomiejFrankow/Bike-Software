@@ -3,7 +3,7 @@ package com.example.bikesoftware
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bikesoftware.UserLocationViewState.UserLocationData
-import com.example.bikesoftware.utils.mapToKPH
+import com.example.bikesoftware.utils.toKph
 import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -26,7 +26,9 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
 
     var polylineLocations = mutableListOf<LatLng>()
 
-    var shouldTrackPolylineLocations = false
+    var speeds = mutableListOf<Int>()
+
+    var isTripStarted = false
 
     var locationCallback = LocationCallbackReference(object : LocationCallback() {
 
@@ -42,9 +44,14 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.locations.forEach {
                 viewModelScope.launch {
-                    if (shouldTrackPolylineLocations) polylineLocations.add(LatLng(it.latitude, it.longitude))
+                    val speedInKph = it.speed.toKph()
 
-                    _viewState.emit(UserLocationData(LatLng(it.latitude, it.longitude), it.speed.mapToKPH()))
+                    if (isTripStarted) {
+                        polylineLocations.add(LatLng(it.latitude, it.longitude))
+                        speeds.add(speedInKph)
+                    }
+
+                    _viewState.emit(UserLocationData(LatLng(it.latitude, it.longitude), speedInKph))
                 }
             }
         }
@@ -54,6 +61,11 @@ class MainActivityViewModel @Inject constructor() : ViewModel() {
         priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         interval = LOCATION_REQUEST_INTERVAL
         fastestInterval = LOCATION_REQUEST_FASTEST_INTERVAL
+    }
+
+    fun clearTripData() {
+        polylineLocations.clear()
+        speeds.clear()
     }
 
 }

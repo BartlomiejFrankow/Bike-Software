@@ -1,12 +1,13 @@
 package com.example.bikesoftware.presentation.maps
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,10 +28,12 @@ private const val FAR_AWAY_ZOOM = 13f
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MapScreen(
     currentLocation: LatLng?,
     locations: List<LatLng>,
+    speeds: List<Int>,
     onStartStopClick: (isStarted: Boolean) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
@@ -66,11 +69,15 @@ fun MapScreen(
         mutableStateOf(true)
     }
 
-    var isRideStarted by remember {
+    var isTripStarted by remember {
         mutableStateOf(false)
     }
 
-    fun getZoom() = if (isRideStarted) CLOSE_ZOOM else FAR_AWAY_ZOOM
+    var showTripTimeSummary by remember {
+        mutableStateOf(false)
+    }
+
+    fun getZoom() = if (isTripStarted) CLOSE_ZOOM else FAR_AWAY_ZOOM
 
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         currentLocation?.let {
@@ -88,6 +95,16 @@ fun MapScreen(
                     CameraPosition(userLocation, getZoom(), TILT, BEARING)
                 )
             )
+        }
+    }
+
+    fun setTimer(isTripStartedF: Boolean) {
+        showTripTimeSummary = if (isTripStarted) {
+            viewModel.startTimer()
+            false
+        } else {
+            viewModel.stopTimer()
+            true
         }
     }
 
@@ -109,12 +126,26 @@ fun MapScreen(
             Button(modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 256.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = if (isTripStarted) Color.Red else Color.Green),
                 onClick = {
-                    isRideStarted = !isRideStarted
-                    onStartStopClick(isRideStarted)
+                    isTripStarted = !isTripStarted
+                    onStartStopClick(isTripStarted)
+                    setTimer(isTripStarted)
                 }
             ) {
-                Text(text = if (isRideStarted) stringResource(R.string.stop_ride) else stringResource(R.string.start_ride))
+                Text(
+                    text = if (isTripStarted) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
+                    color = Color.White
+                )
+            }
+
+            AnimatedVisibility(
+                visible = showTripTimeSummary,
+                modifier = Modifier.fillMaxSize(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                SummaryScreen(viewModel, speeds)
             }
         }
     }
