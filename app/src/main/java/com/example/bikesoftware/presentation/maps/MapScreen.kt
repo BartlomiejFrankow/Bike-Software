@@ -98,7 +98,7 @@ fun MapScreen(
         }
     }
 
-    fun setTimer(isTripStartedF: Boolean) {
+    fun setTimer(isTripStarted: Boolean) {
         showTripTimeSummary = if (isTripStarted) {
             viewModel.startTimer()
             false
