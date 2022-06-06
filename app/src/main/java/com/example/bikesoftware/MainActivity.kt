@@ -68,11 +68,23 @@ class MainActivity : ComponentActivity() {
         MapScreen(
             currentLocation = userLocationData.currentLocation,
             locations = viewModel.polylineLocations,
+            speeds = viewModel.speeds,
             onStartStopClick = { isStarted ->
-                viewModel.shouldTrackPolylineLocations = isStarted
+                if (isStarted) onTripStart()
+                else onTripEnd()
+
+                viewModel.isTripStarted = isStarted
             }
         )
         SpeedClockScreen(currentSpeed = userLocationData.speed)
+    }
+
+    private fun onTripStart() {
+        viewModel.clearTripData()
+
+    }
+
+    private fun onTripEnd() {
     }
 
     override fun onStart() {

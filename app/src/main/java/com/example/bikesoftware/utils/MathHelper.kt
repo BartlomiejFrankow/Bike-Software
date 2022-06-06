@@ -13,4 +13,4 @@ fun Int.isFifthStep() = this % 5 == 0
 
 fun Int.isTenStep() = this % 10 == 0
 
-fun Float.mapToKPH() = (this * 3.6f).roundToInt()
+fun Float.toKph() = (this * 3.6f).roundToInt()
