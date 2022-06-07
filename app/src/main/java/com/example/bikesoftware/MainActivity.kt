@@ -1,7 +1,11 @@
 package com.example.bikesoftware
 
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,28 +17,20 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.lifecycleScope
-import com.example.bikesoftware.UserLocationViewState.UserLocationData
 import com.example.bikesoftware.extensions.areLocationPermissionsGranted
 import com.example.bikesoftware.presentation.maps.MapScreen
 import com.example.bikesoftware.presentation.speedClock.SpeedClockScreen
 import com.example.bikesoftware.ui.theme.BikeSoftwareTheme
 import com.example.bikesoftware.utils.FOREGROUND_LOCATION_PERMISSIONS
 import com.example.bikesoftware.utils.LOCATION_REQUEST_CODE
-import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
-import java.lang.ref.SoftReference
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
-
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private lateinit var observeStateJob: Job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +42,8 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         if (this@MainActivity.areLocationPermissionsGranted()) {
-                            setMapUI()
+                            ShowUi()
+                            startLocationService()
                         } else {
                             Toast.makeText(this@MainActivity, getString(R.string.no_location_permission_message), Toast.LENGTH_LONG).show()
                         }
@@ -56,87 +53,63 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    private fun setMapUI() {
-        getLocation()
-        showUi(UserLocationData(null, 0))
+    override fun onResume() {
+        if (areLocationPermissionsGranted()) {
+            setContent { ShowUi() }
+            startLocationService()
+        }
+        super.onResume()
+    }
+
+    private fun startLocationService() {
+        val serviceIntent = Intent(this, ForegroundLocationService::class.java)
+        startService(serviceIntent)
     }
 
     @Composable
-    private fun showUi(userLocationData: UserLocationData) {
-
+    private fun ShowUi() {
         MapScreen(
-            currentLocation = userLocationData.currentLocation,
-            locations = viewModel.polylineLocations,
-            speeds = viewModel.speeds,
             onStartStopClick = { isStarted ->
                 if (isStarted) onTripStart()
                 else onTripEnd()
-
-                viewModel.isTripStarted = isStarted
             }
         )
-        SpeedClockScreen(currentSpeed = userLocationData.speed)
+        SpeedClockScreen()
     }
 
     private fun onTripStart() {
         viewModel.clearTripData()
-
+        if (!isLocationServiceRunning()) startLocationService()
     }
 
     private fun onTripEnd() {
+        stopService(Intent(this, ForegroundLocationService::class.java))
     }
 
-    override fun onStart() {
-        super.onStart()
-        observeViewState()
-    }
-
-    override fun onStop() {
-        observeStateJob.cancel()
-        super.onStop()
-    }
 
     private fun requestForegroundPermission() = ActivityCompat.requestPermissions(this, FOREGROUND_LOCATION_PERMISSIONS, LOCATION_REQUEST_CODE)
-
-    private fun observeViewState() {
-        observeStateJob = lifecycleScope.launchWhenStarted {
-            viewModel.viewState.collect { state ->
-                when (state) {
-                    is UserLocationData -> setContent { showUi(state) }
-                }
-            }
-        }
-    }
-
-    private fun getLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-
-        fusedLocationProviderClient.requestLocationUpdates(viewModel.locationRequest, viewModel.locationCallback, Looper.getMainLooper())
-    }
 
     @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             LOCATION_REQUEST_CODE -> {
-                if (areLocationPermissionsGranted()) setContent { setMapUI() }
+                if (areLocationPermissionsGranted()) {
+                    setContent { ShowUi() }
+                } else {
+                    // TODO show alert with info and next go to settings
+                    startActivity(Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)))
+                }
                 return
             }
         }
     }
-}
 
-// SoftReference removes callback memory leak
-class LocationCallbackReference(locationCallback: LocationCallback?) : LocationCallback() {
-    private val mLocationCallbackRef: SoftReference<LocationCallback> = SoftReference(locationCallback)
+    @Suppress("DEPRECATION")
+    fun isLocationServiceRunning(): Boolean {
+        for (service: ActivityManager.RunningServiceInfo in (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Integer.MAX_VALUE)) {
+            if (ForegroundLocationService::class.java.name == service.service.className) return true
+        }
 
-    override fun onLocationResult(locationResult: LocationResult) {
-        super.onLocationResult(locationResult)
-        mLocationCallbackRef.get()?.onLocationResult(locationResult)
-    }
-
-    override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-        super.onLocationAvailability(locationAvailability)
-        mLocationCallbackRef.get()?.onLocationAvailability(locationAvailability)
+        return false
     }
 }

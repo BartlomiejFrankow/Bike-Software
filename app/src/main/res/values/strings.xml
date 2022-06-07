@@ -5,5 +5,8 @@
     <string name="stop_trip">Stop trip</string>
     <string name="trip_summary">Trip summary</string>
     <string name="trip_time">Trip time: %1$s</string>
-    <string name="average_speed">Average speed: %1$s km/h</string>
+    <string name="average_speed">Average speed: %1$d km/h</string>
+    <string name="location_is_running">GPS location is running</string>
+    <string name="gps_off_info">Bike Software: GPS signal lost</string>
+    <string name="gps_back">Bike Software: GPS signal came back</string>
 </resources>

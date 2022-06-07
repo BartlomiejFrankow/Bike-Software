@@ -1,0 +1,40 @@
+import java.lang.Boolean;
+import java.lang.String;
+
+CREATE TABLE tripEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    speeds TEXT AS String NOT NULL,
+    locations TEXT AS String NOT NULL,
+    isTripStarted INTEGER AS Boolean DEFAULT 0
+);
+
+insertTripData:
+INSERT OR REPLACE
+INTO tripEntity(id, speeds, locations)
+VALUES(?, ?, ?);
+
+insertTripState:
+INSERT OR REPLACE
+INTO tripEntity(id, speeds, locations, isTripStarted)
+VALUES(
+1,
+"",
+"",
+?
+);
+
+getTripState:
+SELECT isTripStarted
+FROM tripEntity;
+
+getSpeed:
+SELECT speeds
+FROM tripEntity;
+
+getPolylineLocations:
+SELECT locations
+FROM tripEntity;
+
+deleteTripData:
+DELETE FROM tripEntity
+WHERE id = 1;

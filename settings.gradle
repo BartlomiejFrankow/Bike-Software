@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Bike software"
 include ':app'
+include ':domain'
+include ':data'
