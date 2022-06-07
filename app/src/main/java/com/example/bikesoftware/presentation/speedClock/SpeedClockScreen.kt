@@ -1,6 +1,8 @@
 package com.example.bikesoftware.presentation.speedClock
 
 import android.graphics.Paint
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -39,6 +41,7 @@ private const val INDICATOR_SIDE_WIDTH = 4f
 private const val START_POINT = 0
 private const val SCALE_START_VALUE = 0
 private const val SCALE_END_VALUE = 50
+private const val ANIMATION_DURATION = 1000
 
 @Composable
 fun SpeedClockScreen(
@@ -54,15 +57,11 @@ fun SpeedClockScreen(
     var circleCenter by remember {
         mutableStateOf(Offset.Zero)
     }
-    var angle by remember {
-        mutableStateOf(0f)
-    }
-    var dragStateAngle by remember {
-        mutableStateOf(0f)
-    }
-    var oldAngle by remember {
-        mutableStateOf(angle)
-    }
+
+    val animatedSpeed by animateFloatAsState(
+        targetValue = currentSpeed.toFloat(),
+        animationSpec = tween(ANIMATION_DURATION)
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -91,21 +90,6 @@ fun SpeedClockScreen(
                 .fillMaxWidth()
                 .height(120.dp)
                 .align(Alignment.BottomCenter)
-                .pointerInput(true) {
-                    detectDragGestures(
-                        onDragStart = { offset ->
-                            dragStateAngle = -atan2(
-                                y = circleCenter.x - offset.x,
-                                x = circleCenter.y - offset.y
-                            ).toDegrees()
-                        },
-                        onDragEnd = {
-                            oldAngle = angle
-                        }
-                    ) { _, _ ->
-
-                    }
-                }
         ) {
             center = this.center
             circleCenter = Offset(
@@ -118,7 +102,7 @@ fun SpeedClockScreen(
             drawScale(circleCenter, style)
 
             for (currentWeight in scaleStartValue..scaleEndValue) {
-                val angleInRadians = (currentWeight - currentSpeed + angle - NINETY_DEGREES_FLIP).toRadians()
+                val angleInRadians = (currentWeight - animatedSpeed - NINETY_DEGREES_FLIP).toRadians()
                 val lineType = getLineType(currentWeight)
                 val lineLength = getLineLength(lineType, style).toPx()
 
