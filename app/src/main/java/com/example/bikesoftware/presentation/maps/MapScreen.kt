@@ -115,7 +115,7 @@ fun MapScreen(
             ) {
                 if (!isFirstZoom) zoomWithAnimation(cameraPositionState)
 
-                if (isTripStarted) DrawBikePath(viewModel.polylineLocations.value)
+                DrawBikePath(viewModel.polylineLocations.value)
             }
 
             Button(modifier = Modifier
