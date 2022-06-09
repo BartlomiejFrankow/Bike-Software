@@ -1,0 +1,6 @@
+CREATE TABLE tripEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    speeds TEXT AS String NOT NULL,
+    locations TEXT AS String NOT NULL,
+    isTripStarted INTEGER AS Boolean DEFAULT 0
+);

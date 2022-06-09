@@ -1,7 +1,6 @@
 package com.example.bikesoftware.presentation.maps
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
@@ -28,12 +27,8 @@ private const val FAR_AWAY_ZOOM = 13f
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MapScreen(
-    currentLocation: LatLng?,
-    locations: List<LatLng>,
-    speeds: List<Int>,
     onStartStopClick: (isStarted: Boolean) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
@@ -79,20 +74,20 @@ fun MapScreen(
 
     fun getZoom() = if (isTripStarted) CLOSE_ZOOM else FAR_AWAY_ZOOM
 
+    fun getCurrentLocation() = viewModel.polylineLocations.value.last()
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        currentLocation?.let {
-            position = CameraPosition.fromLatLngZoom(it, getZoom())
-            isFirstZoom = false
-        }
+        position = CameraPosition.fromLatLngZoom(getCurrentLocation(), getZoom())
+        isFirstZoom = false
     }
 
     val scaffoldState = rememberScaffoldState()
 
-    fun zoomWithAnimation(cameraPositionState: CameraPositionState, userLocation: LatLng) {
+    fun zoomWithAnimation(cameraPositionState: CameraPositionState) {
         viewModel.viewModelScope.launch {
             cameraPositionState.animate(
                 CameraUpdateFactory.newCameraPosition(
-                    CameraPosition(userLocation, getZoom(), TILT, BEARING)
+                    CameraPosition(getCurrentLocation(), getZoom(), TILT, BEARING)
                 )
             )
         }
@@ -118,9 +113,9 @@ fun MapScreen(
                 uiSettings = mapUiSettings,
                 cameraPositionState = cameraPositionState
             ) {
-                if (!isFirstZoom && currentLocation != null) zoomWithAnimation(cameraPositionState, currentLocation)
+                if (!isFirstZoom) zoomWithAnimation(cameraPositionState)
 
-                DrawBikePath(locations)
+                if (isTripStarted) DrawBikePath(viewModel.polylineLocations.value)
             }
 
             Button(modifier = Modifier
@@ -129,7 +124,13 @@ fun MapScreen(
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (isTripStarted) Color.Red else Color.Green),
                 onClick = {
                     isTripStarted = !isTripStarted
+
+                    if (isTripStarted) viewModel.clearTripData()
+
                     onStartStopClick(isTripStarted)
+
+                    viewModel.setStartStopTripState(isTripStarted)
+
                     setTimer(isTripStarted)
                 }
             ) {
@@ -145,7 +146,7 @@ fun MapScreen(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                SummaryScreen(viewModel, speeds)
+                SummaryScreen(viewModel, viewModel.getAverageSpeed()) // TODO get speeds from view state
             }
         }
     }

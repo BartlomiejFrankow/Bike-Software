@@ -4,7 +4,6 @@ import android.graphics.Paint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -15,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -25,20 +23,22 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.withRotation
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bikesoftware.R
 import com.example.bikesoftware.presentation.speedClock.LineType.*
 import com.example.bikesoftware.utils.isFifthStep
 import com.example.bikesoftware.utils.isTenStep
 import com.example.bikesoftware.utils.toDegrees
 import com.example.bikesoftware.utils.toRadians
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 const val SHADOW_ALPHA = 255
 const val SHADOW_RADIUS = 800f
 private const val NUMBER_SPACE = 5
 private const val NINETY_DEGREES_FLIP = 90
 private const val INDICATOR_SIDE_WIDTH = 4f
-private const val START_POINT = 0
 private const val SCALE_START_VALUE = 0
 private const val SCALE_END_VALUE = 50
 private const val ANIMATION_DURATION = 1000
@@ -47,9 +47,7 @@ private const val ANIMATION_DURATION = 1000
 fun SpeedClockScreen(
     modifier: Modifier = Modifier,
     style: ScaleStyle = ScaleStyle(),
-    scaleStartValue: Int = SCALE_START_VALUE,
-    scaleEndValue: Int = SCALE_END_VALUE,
-    currentSpeed: Int = START_POINT
+    viewModel: SpeedClockViewModel = hiltViewModel()
 ) {
     var center by remember {
         mutableStateOf(Offset.Zero)
@@ -59,7 +57,7 @@ fun SpeedClockScreen(
     }
 
     val animatedSpeed by animateFloatAsState(
-        targetValue = currentSpeed.toFloat(),
+        targetValue = viewModel.currentSpeed.value.toFloat(),
         animationSpec = tween(ANIMATION_DURATION)
     )
 
@@ -70,7 +68,7 @@ fun SpeedClockScreen(
                 withStyle(
                     style = SpanStyle(color = Color.White, fontSize = 96.sp)
                 ) {
-                    append(currentSpeed.toString())
+                    append(viewModel.currentSpeed.value.toString())
                 }
                 withStyle(
                     style = SpanStyle(color = Color.Green, fontSize = 48.sp)
@@ -101,7 +99,7 @@ fun SpeedClockScreen(
 
             drawScale(circleCenter, style)
 
-            for (currentWeight in scaleStartValue..scaleEndValue) {
+            for (currentWeight in SCALE_START_VALUE..SCALE_END_VALUE) {
                 val angleInRadians = (currentWeight - animatedSpeed - NINETY_DEGREES_FLIP).toRadians()
                 val lineType = getLineType(currentWeight)
                 val lineLength = getLineLength(lineType, style).toPx()

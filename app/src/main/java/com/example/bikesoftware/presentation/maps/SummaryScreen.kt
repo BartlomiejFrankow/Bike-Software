@@ -15,13 +15,7 @@ import com.example.bikesoftware.R
 import com.example.bikesoftware.ui.theme.TransparentBlack
 
 @Composable
-fun SummaryScreen(viewModel: MapViewModel, speeds: List<Int>) {
-
-    fun getAverageSpeed() = if (speeds.isNotEmpty()) {
-        (speeds.sum() / speeds.size).toString()
-    } else {
-        "0"
-    }
+fun SummaryScreen(viewModel: MapViewModel, averageSpeed: Int) {
 
     Box {
         Card(
@@ -57,7 +51,7 @@ fun SummaryScreen(viewModel: MapViewModel, speeds: List<Int>) {
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 48.dp),
-                    text = stringResource(R.string.average_speed, getAverageSpeed()),
+                    text = stringResource(R.string.average_speed, averageSpeed),
                     color = Color.White
                 )
             }
