@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bikesoftware.R
+import com.example.bikesoftware.presentation.maps.TripState.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -23,13 +24,14 @@ import com.google.maps.android.compose.*
 import kotlinx.coroutines.launch
 
 private const val CLOSE_ZOOM = 19f
-private const val FAR_AWAY_ZOOM = 13f
+private const val FAR_AWAY_ZOOM = 15f
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
+private const val ZOOM_PADDING = 50
 
 @Composable
 fun MapScreen(
-    onStartStopClick: (isStarted: Boolean) -> Unit,
+    onStartStopClick: (tripState: TripState) -> Unit,
     viewModel: MapViewModel = hiltViewModel()
 ) {
 
@@ -64,15 +66,15 @@ fun MapScreen(
         mutableStateOf(true)
     }
 
-    var isTripStarted by remember {
-        mutableStateOf(false)
-    }
-
     var showTripTimeSummary by remember {
         mutableStateOf(false)
     }
 
-    fun getZoom() = if (isTripStarted) CLOSE_ZOOM else FAR_AWAY_ZOOM
+    fun getZoom() = when (viewModel.tripState.value) {
+        BEFORE_START -> FAR_AWAY_ZOOM
+        STARTED -> CLOSE_ZOOM
+        FINISHED -> FAR_AWAY_ZOOM
+    }
 
     fun getCurrentLocation() = viewModel.polylineLocations.value.last()
 
@@ -83,13 +85,21 @@ fun MapScreen(
 
     val scaffoldState = rememberScaffoldState()
 
+    suspend fun zoom(cameraPositionState: CameraPositionState, zoom: Float) {
+        cameraPositionState.animate(CameraUpdateFactory.newCameraPosition(CameraPosition(getCurrentLocation(), zoom, TILT, BEARING)))
+    }
+
+    suspend fun tripSummaryZoom(cameraPositionState: CameraPositionState) {
+        cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(viewModel.getLatLngBounds(), ZOOM_PADDING))
+    }
+
     fun zoomWithAnimation(cameraPositionState: CameraPositionState) {
         viewModel.viewModelScope.launch {
-            cameraPositionState.animate(
-                CameraUpdateFactory.newCameraPosition(
-                    CameraPosition(getCurrentLocation(), getZoom(), TILT, BEARING)
-                )
-            )
+            when (viewModel.tripState.value) {
+                BEFORE_START -> zoom(cameraPositionState, FAR_AWAY_ZOOM)
+                STARTED -> zoom(cameraPositionState, CLOSE_ZOOM)
+                FINISHED -> tripSummaryZoom(cameraPositionState)
+            }
         }
     }
 
@@ -115,27 +125,31 @@ fun MapScreen(
             ) {
                 if (!isFirstZoom) zoomWithAnimation(cameraPositionState)
 
-                if (isTripStarted) DrawBikePath(viewModel.polylineLocations.value)
+                if (viewModel.tripState.value == STARTED || viewModel.tripState.value == FINISHED) {
+                    DrawBikePath(viewModel.polylineLocations.value)
+                }
             }
 
             Button(modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 256.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (isTripStarted) Color.Red else Color.Green),
+                colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
                 onClick = {
-                    isTripStarted = !isTripStarted
+                    viewModel.tripState.value = when (viewModel.tripState.value) {
+                        BEFORE_START -> STARTED
+                        STARTED -> FINISHED
+                        FINISHED -> STARTED
+                    }
 
-                    if (isTripStarted) viewModel.clearTripData()
+                    viewModel.setStartStopTripState(viewModel.tripState.value == STARTED)
 
-                    onStartStopClick(isTripStarted)
+                    onStartStopClick(viewModel.tripState.value)
 
-                    viewModel.setStartStopTripState(isTripStarted)
-
-                    setTimer(isTripStarted)
+                    setTimer(viewModel.tripState.value == STARTED)
                 }
             ) {
                 Text(
-                    text = if (isTripStarted) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
+                    text = if (viewModel.tripState.value == STARTED) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
                     color = Color.White
                 )
             }
@@ -146,7 +160,7 @@ fun MapScreen(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                SummaryScreen(viewModel, viewModel.getAverageSpeed()) // TODO get speeds from view state
+                SummaryScreen(viewModel, viewModel.getAverageSpeed())
             }
         }
     }

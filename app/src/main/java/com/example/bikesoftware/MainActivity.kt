@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import com.example.bikesoftware.extensions.areLocationPermissionsGranted
 import com.example.bikesoftware.presentation.maps.MapScreen
+import com.example.bikesoftware.presentation.maps.TripState.STARTED
 import com.example.bikesoftware.presentation.speedClock.SpeedClockScreen
 import com.example.bikesoftware.ui.theme.BikeSoftwareTheme
 import com.example.bikesoftware.utils.FOREGROUND_LOCATION_PERMISSIONS
@@ -69,8 +70,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun ShowUi() {
         MapScreen(
-            onStartStopClick = { isStarted ->
-                if (isStarted) onTripStart()
+            onStartStopClick = { tripState ->
+                if (tripState == STARTED) onTripStart()
                 else onTripEnd()
             }
         )
@@ -78,7 +79,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onTripStart() {
-        viewModel.clearTripData()
         if (!isLocationServiceRunning()) startLocationService()
     }
 
