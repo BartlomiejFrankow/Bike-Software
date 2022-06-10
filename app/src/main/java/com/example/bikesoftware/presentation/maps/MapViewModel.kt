@@ -4,12 +4,13 @@ import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bikesoftware.presentation.maps.TripState.BEFORE_START
 import com.example.bikesoftware.utils.TIMER_PATTERN
-import com.example.useCases.DeleteTripDataUseCase
 import com.example.useCases.GetAverageSpeedUseCase
 import com.example.useCases.InsertTripStateUseCase
 import com.example.useCases.ObservePolyLineUseCase
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -18,7 +19,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val observePolyLinesUseCase: ObservePolyLineUseCase,
-    private val deleteTripUseCase: DeleteTripDataUseCase,
     private val getAverageSpeedUseCase: GetAverageSpeedUseCase,
     private val isTripStartedUseCase: InsertTripStateUseCase
 ) : ViewModel() {
@@ -27,6 +27,8 @@ class MapViewModel @Inject constructor(
     private var tripTimeInSeconds = 0L
 
     val polylineLocations = mutableStateOf(listOf(LatLng(0.0, 0.0)))
+
+    var tripState = mutableStateOf(BEFORE_START)
 
     init {
         observeTripData()
@@ -58,12 +60,6 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun clearTripData() {
-        viewModelScope.launch {
-            deleteTripUseCase()
-        }
-    }
-
     fun setStartStopTripState(isTripStarted: Boolean) {
         viewModelScope.launch {
             isTripStartedUseCase(isTripStarted)
@@ -79,4 +75,20 @@ class MapViewModel @Inject constructor(
 
         return speed
     }
+
+    fun getLatLngBounds(): LatLngBounds {
+        val builder = LatLngBounds.Builder()
+
+        polylineLocations.value.forEach {
+            builder.include(it)
+        }
+
+        return builder.build()
+    }
+}
+
+enum class TripState {
+    BEFORE_START,
+    STARTED,
+    FINISHED
 }

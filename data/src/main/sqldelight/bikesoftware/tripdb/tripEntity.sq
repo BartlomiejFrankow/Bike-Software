@@ -10,16 +10,21 @@ CREATE TABLE tripEntity (
 
 insertTripData:
 INSERT OR REPLACE
-INTO tripEntity(id, speeds, locations)
-VALUES(?, ?, ?);
+INTO tripEntity(id, speeds, locations, isTripStarted)
+VALUES(
+?,
+?,
+?,
+(SELECT isTripStarted FROM tripEntity WHERE id = 1)
+);
 
 insertTripState:
 INSERT OR REPLACE
 INTO tripEntity(id, speeds, locations, isTripStarted)
 VALUES(
-1,
-"",
-"",
+?,
+?,
+?,
 ?
 );
 
@@ -34,7 +39,3 @@ FROM tripEntity;
 getPolylineLocations:
 SELECT locations
 FROM tripEntity;
-
-deleteTripData:
-DELETE FROM tripEntity
-WHERE id = 1;

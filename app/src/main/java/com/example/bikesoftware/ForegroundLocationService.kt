@@ -51,6 +51,8 @@ class ForegroundLocationService : Service() {
 
     private var hasLostLocationInPast = false
 
+    private var wasDataCleared = false
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(FOREGROUND_SERVICE_ID, showNotification())
 
@@ -96,12 +98,19 @@ class ForegroundLocationService : Service() {
             observeTripStateUseCase().collect { tripState ->
                 tripState?.let { isTripStarted ->
                     if (isTripStarted) {
-                        speeds.clear()
-                        polylineLocations.clear()
+                        if (!wasDataCleared) clearData()
+                    } else {
+                        wasDataCleared = false
                     }
                 }
             }
         }
+    }
+
+    private fun clearData() {
+        speeds = mutableListOf()
+        polylineLocations = mutableListOf()
+        wasDataCleared = true
     }
 
     private var locationCallback = LocationCallbackReference(object : LocationCallback() {

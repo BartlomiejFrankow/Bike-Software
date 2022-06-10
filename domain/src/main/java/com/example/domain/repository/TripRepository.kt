@@ -10,13 +10,11 @@ interface TripRepository {
 
     fun observeSpeed(): Flow<Speed?>
 
-    suspend fun deleteTripData()
-
     suspend fun insertTripData(speeds: String, polylineLocations: String)
 
     suspend fun getAverageSpeed(): Int
 
-    suspend fun insetTripState(isTripStarted: Boolean)
+    suspend fun insetTripState(tripState: Boolean)
 
     fun observeTripState(): Flow<Boolean?>
 

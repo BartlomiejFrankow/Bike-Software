@@ -22,28 +22,47 @@ class TripRepositoryImpl @Inject constructor(db: TripDatabase) : TripRepository 
         Gson().fromJson(it.executeAsOneOrNull(), Speed::class.java)
     }
 
-    override suspend fun deleteTripData() {
-        queries.deleteTripData()
-    }
-
     override suspend fun insertTripData(speeds: String, polylineLocations: String) {
         queries.insertTripData(1, speeds, polylineLocations)
     }
 
     override suspend fun getAverageSpeed(): Int {
-        var averageSpeed = 0
+        val speedJson = queries.getSpeed().executeAsOneOrNull()
 
-        queries.getSpeed().executeAsOneOrNull()?.let {
-            Gson().fromJson(it, Speed::class.java)?.let { speed ->
-                averageSpeed = speed.values.sum() / speed.values.size
-            }
-        }
+        val json = if (speedJson.isNullOrEmpty()) "{values:[0]}" else speedJson
 
-        return averageSpeed
+        val speed = Gson().fromJson(json, Speed::class.java)
+
+        return speed.values.sum() / speed.values.size
     }
 
-    override suspend fun insetTripState(isTripStarted: Boolean) {
-        queries.insertTripState(isTripStarted)
+    override suspend fun insetTripState(tripState: Boolean) {
+        if (tripState) {
+            insertStateAndClearOtherData(tripState)
+        } else {
+            insertStateWithOtherData(tripState)
+        }
+    }
+
+    private fun insertStateWithOtherData(tripState: Boolean) {
+        val polyLinesJson = queries.getPolylineLocations().executeAsOneOrNull() ?: ""
+        val speedsJson = queries.getSpeed().executeAsOneOrNull() ?: ""
+
+        queries.insertTripState(
+            id = 1,
+            speeds = speedsJson,
+            locations = polyLinesJson,
+            isTripStarted = tripState
+        )
+    }
+
+    private fun insertStateAndClearOtherData(tripState: Boolean) {
+        queries.insertTripState(
+            id = 1,
+            speeds = "",
+            locations = "",
+            isTripStarted = tripState
+        )
     }
 
     override fun observeTripState(): Flow<Boolean?> {
