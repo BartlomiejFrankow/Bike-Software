@@ -63,8 +63,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startLocationService() {
-        val serviceIntent = Intent(this, ForegroundLocationService::class.java)
-        startService(serviceIntent)
+        if (!isLocationServiceRunning()) {
+            val serviceIntent = Intent(this, ForegroundLocationService::class.java)
+            startService(serviceIntent)
+        }
     }
 
     @Composable
@@ -79,7 +81,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onTripStart() {
-        if (!isLocationServiceRunning()) startLocationService()
+        startLocationService()
     }
 
     private fun onTripEnd() {
