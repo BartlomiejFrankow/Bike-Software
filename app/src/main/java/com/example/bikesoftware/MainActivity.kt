@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import com.example.bikesoftware.extensions.areLocationPermissionsGranted
+import com.example.bikesoftware.presentation.LocationInfoDialog
 import com.example.bikesoftware.presentation.maps.MapScreen
 import com.example.bikesoftware.presentation.maps.TripState.STARTED
 import com.example.bikesoftware.presentation.speedClock.SpeedClockScreen
@@ -25,9 +26,7 @@ import com.example.bikesoftware.ui.theme.BikeSoftwareTheme
 import com.example.bikesoftware.utils.FOREGROUND_LOCATION_PERMISSIONS
 import com.example.bikesoftware.utils.LOCATION_REQUEST_CODE
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -98,8 +97,11 @@ class MainActivity : ComponentActivity() {
                 if (areLocationPermissionsGranted()) {
                     setContent { ShowUi() }
                 } else {
-                    // TODO show alert with info and next go to settings
-                    startActivity(Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)))
+                    setContent {
+                        LocationInfoDialog {
+                            startActivity(Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)))
+                        }
+                    }
                 }
                 return
             }
