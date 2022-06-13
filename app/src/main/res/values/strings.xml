@@ -9,4 +9,7 @@
     <string name="location_is_running">GPS location is running</string>
     <string name="gps_off_info">Bike Software: GPS signal lost</string>
     <string name="gps_back">Bike Software: GPS signal came back</string>
+    <string name="location_permission_title">Warning</string>
+    <string name="location_permission_description">We need your background location permission from app settings to localize your trip when device is locked</string>
+    <string name="go_to_settings">Go to settings</string>
 </resources>
