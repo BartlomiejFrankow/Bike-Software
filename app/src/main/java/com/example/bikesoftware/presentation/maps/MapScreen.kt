@@ -173,7 +173,7 @@ fun MapScreen(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                SummaryScreen(viewModel, viewModel.getAverageSpeed())
+                SummaryScreen(viewModel)
             }
         }
     }

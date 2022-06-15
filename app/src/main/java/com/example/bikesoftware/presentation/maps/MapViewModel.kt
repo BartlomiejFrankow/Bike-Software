@@ -1,5 +1,6 @@
 package com.example.bikesoftware.presentation.maps
 
+import android.location.Location
 import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -15,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
@@ -65,6 +67,35 @@ class MapViewModel @Inject constructor(
             isTripStartedUseCase(isTripStarted)
         }
     }
+
+    fun getTripDistance(): Pair<Int, Double> {
+        var totalDistanceInMeters = 0.0
+
+        if (polylineLocations.value.size > 1) {
+            polylineLocations.value.forEachIndexed { index, _ ->
+                val start = polylineLocations.value[index]
+                val end = polylineLocations.value[index + 1]
+
+                val startPoint = Location("startPoint").apply {
+                    latitude = start.latitude
+                    longitude = start.longitude
+                }
+
+                val endPoint = Location("endPoint").apply {
+                    latitude = end.latitude
+                    longitude = end.longitude
+                }
+
+                totalDistanceInMeters += startPoint.distanceTo(endPoint)
+            }
+        }
+
+        val kilometers = (totalDistanceInMeters / 1000).toInt()
+
+        return Pair(kilometers, getRemainingMeters(totalDistanceInMeters, kilometers))
+    }
+
+    private fun getRemainingMeters(totalDistanceInMeters: Double, kilometers: Int) = totalDistanceInMeters - kilometers * 1000
 
     fun getAverageSpeed(): Int {
         var speed = 0
