@@ -60,7 +60,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun setStartStopTripState(isTripStarted: Boolean) {
+    fun setTripStateInDatabase(isTripStarted: Boolean) {
         viewModelScope.launch {
             isTripStartedUseCase(isTripStarted)
         }

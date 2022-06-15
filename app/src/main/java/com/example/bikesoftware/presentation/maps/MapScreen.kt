@@ -21,10 +21,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val CLOSE_ZOOM = 19f
-private const val FAR_AWAY_ZOOM = 15f
+private const val MID_ZOOM = 14f
+private const val FAR_AWAY_ZOOM = 9f // First zoom and limit for last summary zoom
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
 private const val ZOOM_PADDING = 50
@@ -66,6 +68,11 @@ fun MapScreen(
         mutableStateOf(true)
     }
 
+    var beginningZoom by remember {
+        mutableStateOf(FAR_AWAY_ZOOM)
+    }
+
+
     var showTripTimeSummary by remember {
         mutableStateOf(false)
     }
@@ -96,9 +103,19 @@ fun MapScreen(
     fun zoomWithAnimation(cameraPositionState: CameraPositionState) {
         viewModel.viewModelScope.launch {
             when (viewModel.tripState.value) {
-                BEFORE_START -> zoom(cameraPositionState, FAR_AWAY_ZOOM)
-                STARTED -> zoom(cameraPositionState, CLOSE_ZOOM)
-                FINISHED -> tripSummaryZoom(cameraPositionState)
+                BEFORE_START -> {
+                    zoom(cameraPositionState, beginningZoom)
+
+                    delay(3000) // one time delay for zoom animation
+                    beginningZoom = MID_ZOOM
+                }
+                STARTED -> {
+                    zoom(cameraPositionState, CLOSE_ZOOM)
+                }
+                FINISHED -> {
+                    tripSummaryZoom(cameraPositionState)
+                    beginningZoom = FAR_AWAY_ZOOM
+                }
             }
         }
     }
@@ -135,13 +152,9 @@ fun MapScreen(
                 .padding(bottom = 256.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
                 onClick = {
-                    viewModel.tripState.value = when (viewModel.tripState.value) {
-                        BEFORE_START -> STARTED
-                        STARTED -> FINISHED
-                        FINISHED -> STARTED
-                    }
+                    setTripState(viewModel)
 
-                    viewModel.setStartStopTripState(viewModel.tripState.value == STARTED)
+                    viewModel.setTripStateInDatabase(viewModel.tripState.value == STARTED)
 
                     onStartStopClick(viewModel.tripState.value)
 
@@ -163,6 +176,14 @@ fun MapScreen(
                 SummaryScreen(viewModel, viewModel.getAverageSpeed())
             }
         }
+    }
+}
+
+private fun setTripState(viewModel: MapViewModel) {
+    viewModel.tripState.value = when (viewModel.tripState.value) {
+        BEFORE_START -> STARTED
+        STARTED -> FINISHED
+        FINISHED -> STARTED
     }
 }
 
