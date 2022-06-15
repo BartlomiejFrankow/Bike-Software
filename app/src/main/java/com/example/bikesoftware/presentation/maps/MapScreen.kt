@@ -78,7 +78,7 @@ fun MapScreen(
     }
 
     fun getZoom() = when (viewModel.tripState.value) {
-        BEFORE_START -> FAR_AWAY_ZOOM
+        BEGINNING -> FAR_AWAY_ZOOM
         STARTED -> CLOSE_ZOOM
         FINISHED -> FAR_AWAY_ZOOM
     }
@@ -103,7 +103,7 @@ fun MapScreen(
     fun zoomWithAnimation(cameraPositionState: CameraPositionState) {
         viewModel.viewModelScope.launch {
             when (viewModel.tripState.value) {
-                BEFORE_START -> {
+                BEGINNING -> {
                     zoom(cameraPositionState, beginningZoom)
 
                     delay(3000) // one time delay for zoom animation
@@ -181,7 +181,7 @@ fun MapScreen(
 
 private fun setTripState(viewModel: MapViewModel) {
     viewModel.tripState.value = when (viewModel.tripState.value) {
-        BEFORE_START -> STARTED
+        BEGINNING -> STARTED
         STARTED -> FINISHED
         FINISHED -> STARTED
     }
