@@ -15,7 +15,7 @@ import com.example.bikesoftware.R
 import com.example.bikesoftware.ui.theme.TransparentBlack
 
 @Composable
-fun SummaryScreen(viewModel: MapViewModel, averageSpeed: Int) {
+fun SummaryScreen(viewModel: MapViewModel) {
 
     Box {
         Card(
@@ -51,7 +51,19 @@ fun SummaryScreen(viewModel: MapViewModel, averageSpeed: Int) {
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 48.dp),
-                    text = stringResource(R.string.average_speed, averageSpeed),
+                    text = stringResource(R.string.average_speed, viewModel.getAverageSpeed()),
+                    color = Color.White
+                )
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 72.dp),
+                    text = if (viewModel.getTripDistance().first > 0) {
+                        stringResource(R.string.distance_in_kilometers, viewModel.getTripDistance().first, viewModel.getTripDistance().second.toInt())
+                    } else {
+                        stringResource(R.string.distance, viewModel.getTripDistance().second)
+                    },
                     color = Color.White
                 )
             }
