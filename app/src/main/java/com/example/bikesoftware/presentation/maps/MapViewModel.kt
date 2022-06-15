@@ -4,7 +4,7 @@ import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bikesoftware.presentation.maps.TripState.BEFORE_START
+import com.example.bikesoftware.presentation.maps.TripState.BEGINNING
 import com.example.bikesoftware.utils.TIMER_PATTERN
 import com.example.useCases.GetAverageSpeedUseCase
 import com.example.useCases.InsertTripStateUseCase
@@ -28,7 +28,7 @@ class MapViewModel @Inject constructor(
 
     val polylineLocations = mutableStateOf(listOf(LatLng(0.0, 0.0)))
 
-    var tripState = mutableStateOf(BEFORE_START)
+    var tripState = mutableStateOf(BEGINNING)
 
     init {
         observeTripData()
@@ -60,7 +60,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun setStartStopTripState(isTripStarted: Boolean) {
+    fun setTripStateInDatabase(isTripStarted: Boolean) {
         viewModelScope.launch {
             isTripStartedUseCase(isTripStarted)
         }
@@ -88,7 +88,7 @@ class MapViewModel @Inject constructor(
 }
 
 enum class TripState {
-    BEFORE_START,
+    BEGINNING,
     STARTED,
     FINISHED
 }
