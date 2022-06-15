@@ -133,19 +133,24 @@ class ForegroundLocationService : Service() {
                     val speedInKph = it.speed.toKph()
 
                     val gson = Gson()
+                    val newLocation = Location(it.latitude, it.longitude)
 
-                    polylineLocations.add(Location(it.latitude, it.longitude))
-                    speeds.add(speedInKph)
+                    if (polylineLocations.isEmpty() || areNotSameLocations(newLocation, polylineLocations.last())) {
+                        polylineLocations.add(newLocation)
+                        speeds.add(speedInKph)
 
-                    insertTripDataUseCase(gson.toJson(Speed(speeds)), gson.toJson(PolyLineLocations(polylineLocations)))
-
+                        insertTripDataUseCase(gson.toJson(Speed(speeds)), gson.toJson(PolyLineLocations(polylineLocations)))
+                    }
                 }
             }
         }
+
     })
 
+    private fun areNotSameLocations(first: Location, second: Location) = first != second
+
     private val locationRequest = LocationRequest.create().apply {
-        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         interval = LOCATION_REQUEST_INTERVAL
         fastestInterval = LOCATION_REQUEST_FASTEST_INTERVAL
     }

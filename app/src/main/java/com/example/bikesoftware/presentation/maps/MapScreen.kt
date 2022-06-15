@@ -168,10 +168,8 @@ fun MapScreen(
 
 @Composable
 private fun DrawBikePath(locations: List<LatLng>) {
-    repeat(locations.size) {
-        Polyline(
-            points = locations,
-            color = Color.Green
-        )
-    }
+    Polyline(
+        points = locations,
+        color = Color.Green
+    )
 }
