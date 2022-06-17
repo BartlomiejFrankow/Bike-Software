@@ -73,20 +73,22 @@ class MapViewModel @Inject constructor(
 
         if (polylineLocations.value.size > 1) {
             polylineLocations.value.forEachIndexed { index, _ ->
-                val start = polylineLocations.value[index]
-                val end = polylineLocations.value[index + 1]
+                if (index + 1 < polylineLocations.value.size) {
+                    val start = polylineLocations.value[index]
+                    val end = polylineLocations.value[index + 1]
 
-                val startPoint = Location("startPoint").apply {
-                    latitude = start.latitude
-                    longitude = start.longitude
+                    val startPoint = Location("startPoint").apply {
+                        latitude = start.latitude
+                        longitude = start.longitude
+                    }
+
+                    val endPoint = Location("endPoint").apply {
+                        latitude = end.latitude
+                        longitude = end.longitude
+                    }
+
+                    totalDistanceInMeters += startPoint.distanceTo(endPoint)
                 }
-
-                val endPoint = Location("endPoint").apply {
-                    latitude = end.latitude
-                    longitude = end.longitude
-                }
-
-                totalDistanceInMeters += startPoint.distanceTo(endPoint)
             }
         }
 

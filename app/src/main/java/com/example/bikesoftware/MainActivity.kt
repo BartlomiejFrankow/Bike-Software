@@ -54,11 +54,17 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() {
-        if (areLocationPermissionsGranted()) {
+        if (areLocationPermissionsGranted() && viewModel.wasSettingsOpened) {
+            viewModel.wasSettingsOpened = false
             setContent { ShowUi() }
             startLocationService()
         }
         super.onResume()
+    }
+
+    override fun onDestroy() {
+        stopService(Intent(this, ForegroundLocationService::class.java))
+        super.onDestroy()
     }
 
     private fun startLocationService() {
@@ -99,6 +105,7 @@ class MainActivity : ComponentActivity() {
                 } else {
                     setContent {
                         LocationInfoDialog {
+                            viewModel.wasSettingsOpened = true
                             startActivity(Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)))
                         }
                     }

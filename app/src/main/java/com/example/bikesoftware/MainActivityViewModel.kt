@@ -7,4 +7,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor() : ViewModel() {
 
+    var wasSettingsOpened = false
+
 }

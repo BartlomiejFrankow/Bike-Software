@@ -6,7 +6,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +75,6 @@ fun MapScreen(
         mutableStateOf(FAR_AWAY_ZOOM)
     }
 
-
     var showTripTimeSummary by remember {
         mutableStateOf(false)
     }
@@ -130,51 +132,49 @@ fun MapScreen(
         }
     }
 
-    Scaffold(scaffoldState = scaffoldState) {
-        Box {
-            GoogleMap(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 72.dp),
-                properties = mapProperties,
-                uiSettings = mapUiSettings,
-                cameraPositionState = cameraPositionState
-            ) {
-                if (!isFirstZoom) zoomWithAnimation(cameraPositionState)
+    Box {
+        GoogleMap(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 72.dp),
+            properties = mapProperties,
+            uiSettings = mapUiSettings,
+            cameraPositionState = cameraPositionState
+        ) {
+            if (!isFirstZoom) zoomWithAnimation(cameraPositionState)
 
-                if (viewModel.tripState.value == STARTED || viewModel.tripState.value == FINISHED) {
-                    DrawBikePath(viewModel.polylineLocations.value)
-                }
+            if (viewModel.tripState.value == STARTED || viewModel.tripState.value == FINISHED) {
+                DrawBikePath(viewModel.polylineLocations.value)
             }
+        }
 
-            Button(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 256.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
-                onClick = {
-                    setTripState(viewModel)
+        Button(modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = 256.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
+            onClick = {
+                setTripState(viewModel)
 
-                    viewModel.setTripStateInDatabase(viewModel.tripState.value == STARTED)
+                viewModel.setTripStateInDatabase(viewModel.tripState.value == STARTED)
 
-                    onStartStopClick(viewModel.tripState.value)
+                onStartStopClick(viewModel.tripState.value)
 
-                    setTimer(viewModel.tripState.value == STARTED)
-                }
-            ) {
-                Text(
-                    text = if (viewModel.tripState.value == STARTED) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
-                    color = Color.White
-                )
+                setTimer(viewModel.tripState.value == STARTED)
             }
+        ) {
+            Text(
+                text = if (viewModel.tripState.value == STARTED) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
+                color = Color.White
+            )
+        }
 
-            AnimatedVisibility(
-                visible = showTripTimeSummary,
-                modifier = Modifier.fillMaxSize(),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                SummaryScreen(viewModel)
-            }
+        AnimatedVisibility(
+            visible = showTripTimeSummary,
+            modifier = Modifier.fillMaxSize(),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            SummaryScreen(viewModel)
         }
     }
 }
