@@ -18,6 +18,6 @@
     <dimen name="card_size">200dp</dimen>
 
     // Speed clock
-    <dimen name="speed_padding_bottom">200dp</dimen>
+    <dimen name="speed_padding_bottom">140dp</dimen>
     <dimen name="speed_clock_height">120dp</dimen>
 </resources>

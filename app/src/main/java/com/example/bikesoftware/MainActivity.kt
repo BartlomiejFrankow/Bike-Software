@@ -16,6 +16,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.core.app.ActivityCompat
 import com.example.bikesoftware.extensions.areLocationPermissionsGranted
 import com.example.bikesoftware.presentation.LocationInfoDialog
@@ -26,6 +27,7 @@ import com.example.bikesoftware.ui.theme.BikeSoftwareTheme
 import com.example.bikesoftware.utils.FOREGROUND_LOCATION_PERMISSIONS
 import com.example.bikesoftware.utils.LOCATION_REQUEST_CODE
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -92,7 +94,6 @@ class MainActivity : ComponentActivity() {
     private fun onTripEnd() {
         stopService(Intent(this, ForegroundLocationService::class.java))
     }
-
 
     private fun requestForegroundPermission() = ActivityCompat.requestPermissions(this, FOREGROUND_LOCATION_PERMISSIONS, LOCATION_REQUEST_CODE)
 
