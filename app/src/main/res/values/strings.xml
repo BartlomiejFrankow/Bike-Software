@@ -14,4 +14,5 @@
     <string name="location_permission_title">Warning</string>
     <string name="location_permission_description">We need your background location permission from app settings to localize your trip when device is locked</string>
     <string name="go_to_settings">Go to settings</string>
+    <string name="kilometers_per_hour">Km/h</string>
 </resources>

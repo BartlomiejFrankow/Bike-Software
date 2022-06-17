@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -66,19 +68,19 @@ fun SpeedClockScreen(
         Text(
             buildAnnotatedString {
                 withStyle(
-                    style = SpanStyle(color = Color.White, fontSize = 96.sp)
+                    style = SpanStyle(color = Color.White, fontSize = dimensionResource(R.dimen.large_text).value.sp)
                 ) {
                     append(viewModel.currentSpeed.value.toString())
                 }
                 withStyle(
-                    style = SpanStyle(color = Color.Green, fontSize = 48.sp)
+                    style = SpanStyle(color = Color.Green, fontSize = dimensionResource(R.dimen.big_text).value.sp)
                 ) {
-                    append("Km/h")
+                    append(stringResource(R.string.kilometers_per_hour))
                 }
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 140.dp),
+                .padding(bottom = dimensionResource(R.dimen.speed_padding_bottom)),
             fontFamily = FontFamily(Font(R.font.lexend_thin)),
             fontWeight = FontWeight.Bold
         )
@@ -86,7 +88,7 @@ fun SpeedClockScreen(
         Canvas(
             modifier = modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .height(dimensionResource(R.dimen.speed_clock_height))
                 .align(Alignment.BottomCenter)
         ) {
             center = this.center
