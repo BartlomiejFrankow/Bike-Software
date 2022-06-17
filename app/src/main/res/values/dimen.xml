@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    // Basic dp
+    <dimen name="small_padding">8dp</dimen>
+    <dimen name="mid_padding">24dp</dimen>
+    <dimen name="big_padding">48dp</dimen>
+    <dimen name="large_padding">72dp</dimen>
+
+    // Basic sp
+    <dimen name="mid_text">24sp</dimen>
+    <dimen name="big_text">48sp</dimen>
+    <dimen name="large_text">96sp</dimen>
+
+    // Start/Stop
+    <dimen name="start_stop_bottom_padding">256dp</dimen>
+
+    // Card
+    <dimen name="card_size">200dp</dimen>
+
+    // Speed clock
+    <dimen name="speed_padding_bottom">200dp</dimen>
+    <dimen name="speed_clock_height">120dp</dimen>
+</resources>

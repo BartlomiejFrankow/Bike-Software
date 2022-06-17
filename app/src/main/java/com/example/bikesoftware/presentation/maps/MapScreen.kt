@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bikesoftware.R
@@ -92,8 +91,6 @@ fun MapScreen(
         isFirstZoom = false
     }
 
-    val scaffoldState = rememberScaffoldState()
-
     suspend fun zoom(cameraPositionState: CameraPositionState, zoom: Float) {
         cameraPositionState.animate(CameraUpdateFactory.newCameraPosition(CameraPosition(getCurrentLocation(), zoom, TILT, BEARING)))
     }
@@ -136,7 +133,7 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 72.dp),
+                .padding(bottom = dimensionResource(R.dimen.large_padding)),
             properties = mapProperties,
             uiSettings = mapUiSettings,
             cameraPositionState = cameraPositionState
@@ -150,7 +147,7 @@ fun MapScreen(
 
         Button(modifier = Modifier
             .align(Alignment.BottomCenter)
-            .padding(bottom = 256.dp),
+            .padding(bottom = dimensionResource(R.dimen.start_stop_bottom_padding)),
             colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
             onClick = {
                 setTripState(viewModel)

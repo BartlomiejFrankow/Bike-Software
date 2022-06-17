@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bikesoftware.R
 
@@ -28,7 +28,7 @@ fun LocationInfoDialog(onGoToSettingsClick: () -> Unit) {
             title = {
                 Text(
                     text = stringResource(id = R.string.location_permission_title),
-                    fontSize = 24.sp,
+                    fontSize = dimensionResource(R.dimen.mid_text).value.sp,
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -37,7 +37,7 @@ fun LocationInfoDialog(onGoToSettingsClick: () -> Unit) {
             },
             buttons = {
                 Row(
-                    modifier = Modifier.padding(all = 8.dp),
+                    modifier = Modifier.padding(all = dimensionResource(R.dimen.small_padding)),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
