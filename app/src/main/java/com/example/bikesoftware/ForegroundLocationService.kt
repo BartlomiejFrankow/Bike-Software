@@ -6,6 +6,7 @@ import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Intent
+import android.location.Location.distanceBetween
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
@@ -29,6 +30,7 @@ import javax.inject.Inject
 
 private const val LOCATION_REQUEST_INTERVAL = 2000L
 private const val LOCATION_REQUEST_FASTEST_INTERVAL = 1000L
+private const val DISTANCE_IN_METERS = 50
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -135,7 +137,10 @@ class ForegroundLocationService : Service() {
                     val gson = Gson()
                     val newLocation = Location(it.latitude, it.longitude)
 
-                    if (polylineLocations.isEmpty() || areNotSameLocations(newLocation, polylineLocations.last())) {
+                    if (polylineLocations.isEmpty()
+                        || areNotSameLocations(newLocation, polylineLocations.last())
+                        && isDistanceOk(newLocation, polylineLocations.last())
+                    ) {
                         polylineLocations.add(newLocation)
                         speeds.add(speedInKph)
 
@@ -144,8 +149,13 @@ class ForegroundLocationService : Service() {
                 }
             }
         }
-
     })
+
+    private fun isDistanceOk(newLocation: Location, lastKnownLocation: Location): Boolean {
+        val distanceInMeters = FloatArray(1)
+        distanceBetween(newLocation.latitude, newLocation.longitude, lastKnownLocation.latitude, lastKnownLocation.longitude, distanceInMeters)
+        return distanceInMeters[0] < DISTANCE_IN_METERS
+    }
 
     private fun areNotSameLocations(first: Location, second: Location) = first != second
 
