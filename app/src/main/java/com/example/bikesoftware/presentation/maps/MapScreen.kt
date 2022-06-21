@@ -5,20 +5,29 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bikesoftware.R
 import com.example.bikesoftware.presentation.maps.TripState.*
+import com.example.bikesoftware.ui.theme.DirtWhite
+import com.example.bikesoftware.ui.theme.NeonOrange
+import com.example.bikesoftware.ui.theme.Orange
+import com.example.bikesoftware.ui.theme.Red
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -26,12 +35,12 @@ import com.google.maps.android.compose.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val CLOSE_ZOOM = 19f
-private const val MID_ZOOM = 14f
+private const val CLOSE_ZOOM = 18.5f // Ride zoom
+private const val MID_ZOOM = 14f // Second zoom after some time
 private const val FAR_AWAY_ZOOM = 9f // First zoom and limit for last summary zoom
 private const val TILT = 35f // View angle in degrees
 private const val BEARING = 0f // North direction
-private const val ZOOM_PADDING = 50
+private const val ZOOM_PADDING = 50 // Trip summary map zoom padding
 
 @Composable
 fun MapScreen(
@@ -147,8 +156,14 @@ fun MapScreen(
 
         Button(modifier = Modifier
             .align(Alignment.BottomCenter)
-            .padding(bottom = dimensionResource(R.dimen.start_stop_bottom_padding)),
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Color.Red else Color.Green),
+            .padding(
+                bottom = dimensionResource(R.dimen.start_stop_bottom_padding),
+                start = dimensionResource(R.dimen.mid_padding),
+                end = dimensionResource(R.dimen.mid_padding)
+            )
+            .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (viewModel.tripState.value == STARTED) Red else Orange),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.corners_round)),
             onClick = {
                 setTripState(viewModel)
 
@@ -161,7 +176,10 @@ fun MapScreen(
         ) {
             Text(
                 text = if (viewModel.tripState.value == STARTED) stringResource(R.string.stop_trip) else stringResource(R.string.start_trip),
-                color = Color.White
+                color = DirtWhite,
+                fontSize = dimensionResource(R.dimen.mid_text).value.sp,
+                fontFamily = FontFamily(Font(R.font.lexend_thin)),
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -171,7 +189,9 @@ fun MapScreen(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            SummaryScreen(viewModel)
+            SummaryScreen(viewModel) {
+                showTripTimeSummary = false
+            }
         }
     }
 }
@@ -188,6 +208,6 @@ private fun setTripState(viewModel: MapViewModel) {
 private fun DrawBikePath(locations: List<LatLng>) {
     Polyline(
         points = locations,
-        color = Color.Green
+        color = NeonOrange
     )
 }
