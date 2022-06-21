@@ -5,19 +5,28 @@
     <dimen name="mid_padding">24dp</dimen>
     <dimen name="big_padding">48dp</dimen>
     <dimen name="large_padding">72dp</dimen>
+    <dimen name="huge_padding">192dp</dimen>
 
     // Basic sp
-    <dimen name="mid_text">24sp</dimen>
+    <dimen name="very_small_text">16sp</dimen>
+    <dimen name="small_text">24sp</dimen>
+    <dimen name="mid_text">32sp</dimen>
     <dimen name="big_text">48sp</dimen>
     <dimen name="large_text">96sp</dimen>
 
     // Start/Stop
-    <dimen name="start_stop_bottom_padding">256dp</dimen>
+    <dimen name="start_stop_bottom_padding">248dp</dimen>
+
+    // Button
+    <dimen name="corners_round">16dp</dimen>
 
     // Card
-    <dimen name="card_size">256dp</dimen>
+    <dimen name="card_height">384dp</dimen>
+
+    // Icon
+    <dimen name="icon_size">32dp</dimen>
 
     // Speed clock
-    <dimen name="speed_padding_bottom">140dp</dimen>
+    <dimen name="speed_padding_bottom">128dp</dimen>
     <dimen name="speed_clock_height">120dp</dimen>
 </resources>

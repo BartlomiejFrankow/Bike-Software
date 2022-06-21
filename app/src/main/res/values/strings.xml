@@ -7,8 +7,8 @@
     <string name="trip_time">Trip time: %1$s</string>
     <string name="average_speed">Average speed: %1$d km/h</string>
     <string name="highest_speed">Highest speed: %1$d km/h</string>
-    <string name="lowest_altitude">Lowest altitude: %1$d meters above sea level</string>
-    <string name="highest_altitude">Highest altitude: %1$d meters above sea level</string>
+    <string name="lowest_altitude">Low altitude: %1$d m.a.s.l.</string>
+    <string name="highest_altitude">High altitude: %1$d m.a.s.l.</string>
     <string name="altitude_diff">Altitude diff: %1$d meters</string>
     <string name="distance">Distance: %1$.2f meters</string>
     <string name="distance_in_kilometers">Distance: %1$d km %2$d meters</string>
@@ -19,4 +19,5 @@
     <string name="location_permission_description">We need your background location permission from app settings to localize your trip when device is locked</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="kilometers_per_hour">Km/h</string>
+    <string name="close">Close</string>
 </resources>

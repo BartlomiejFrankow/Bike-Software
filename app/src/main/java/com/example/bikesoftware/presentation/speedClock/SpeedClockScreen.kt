@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
@@ -68,12 +67,12 @@ fun SpeedClockScreen(
         Text(
             buildAnnotatedString {
                 withStyle(
-                    style = SpanStyle(color = Color.White, fontSize = dimensionResource(R.dimen.large_text).value.sp)
+                    style = SpanStyle(color = style.textColor, fontSize = dimensionResource(R.dimen.large_text).value.sp, fontWeight = FontWeight.Bold)
                 ) {
                     append(viewModel.currentSpeed.value.toString())
                 }
                 withStyle(
-                    style = SpanStyle(color = Color.Green, fontSize = dimensionResource(R.dimen.big_text).value.sp)
+                    style = SpanStyle(color = style.colorAccent, fontSize = dimensionResource(R.dimen.big_text).value.sp)
                 ) {
                     append(stringResource(R.string.kilometers_per_hour))
                 }
@@ -145,7 +144,7 @@ private fun DrawScope.drawWeightIndicator(
 
     drawPath(
         path = indicator,
-        color = style.scaleIndicatorColor
+        color = style.colorAccent
     )
 }
 
@@ -202,6 +201,7 @@ private fun DrawScope.drawWeightValue(
                     Paint().apply {
                         textSize = style.textSize.toPx()
                         textAlign = Paint.Align.CENTER
+                        color = style.textColor.hashCode()
                     },
                 )
             }
@@ -217,7 +217,7 @@ private fun DrawScope.drawScale(circleCenter: Offset, style: ScaleStyle) {
             style.radius.toPx(),
             Paint().apply {
                 strokeWidth = style.scaleWidth.toPx()
-                color = Color.White.hashCode()
+                color = style.scaleColor.hashCode()
                 setStyle(Paint.Style.STROKE)
                 setShadowLayer(SHADOW_RADIUS, 0f, 0f, android.graphics.Color.argb(SHADOW_ALPHA, 0, 0, 0))
             }
@@ -238,7 +238,7 @@ private fun getLineLength(lineType: LineType, style: ScaleStyle) = when (lineTyp
 }
 
 private fun getLineColor(lineType: LineType, style: ScaleStyle) = when (lineType) {
-    FiveStep -> style.fiveStepLineColor
+    FiveStep -> style.colorAccent
     NormalStep -> style.normalLineColor
     TenStep -> style.tenStepLineColor
 }
