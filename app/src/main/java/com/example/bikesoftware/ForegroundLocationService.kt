@@ -15,6 +15,7 @@ import com.example.bikesoftware.utils.FOREGROUND_LOCATION_CHANNEL
 import com.example.bikesoftware.utils.FOREGROUND_NOTIFICATION
 import com.example.bikesoftware.utils.FOREGROUND_SERVICE_ID
 import com.example.bikesoftware.utils.toKph
+import com.example.domain.dto.Altitudes
 import com.example.domain.dto.Location
 import com.example.domain.dto.PolyLineLocations
 import com.example.domain.dto.Speed
@@ -45,6 +46,8 @@ class ForegroundLocationService : Service() {
     var polylineLocations = mutableListOf<Location>()
 
     var speeds = mutableListOf<Int>()
+
+    var altitudes = mutableListOf<Double>()
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -133,18 +136,23 @@ class ForegroundLocationService : Service() {
             locationResult.locations.forEach {
                 scope.launch {
                     val speedInKph = it.speed.toKph()
-
-                    val gson = Gson()
                     val newLocation = Location(it.latitude, it.longitude)
 
                     if (polylineLocations.isEmpty()
                         || areNotSameLocations(newLocation, polylineLocations.last())
                         && isDistanceOk(newLocation, polylineLocations.last())
                     ) {
+                        val gson = Gson()
+
                         polylineLocations.add(newLocation)
                         speeds.add(speedInKph)
+                        altitudes.add(it.altitude)
 
-                        insertTripDataUseCase(gson.toJson(Speed(speeds)), gson.toJson(PolyLineLocations(polylineLocations)))
+                        insertTripDataUseCase(
+                            speeds = gson.toJson(Speed(speeds)),
+                            polylineLocations = gson.toJson(PolyLineLocations(polylineLocations)),
+                            altitudes = gson.toJson(Altitudes(altitudes))
+                        )
                     }
                 }
             }

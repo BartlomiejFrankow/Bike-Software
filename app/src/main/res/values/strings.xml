@@ -6,6 +6,10 @@
     <string name="trip_summary">Trip summary</string>
     <string name="trip_time">Trip time: %1$s</string>
     <string name="average_speed">Average speed: %1$d km/h</string>
+    <string name="highest_speed">Highest speed: %1$d km/h</string>
+    <string name="lowest_altitude">Lowest altitude: %1$d meters above sea level</string>
+    <string name="highest_altitude">Highest altitude: %1$d meters above sea level</string>
+    <string name="altitude_diff">Altitude diff: %1$d meters</string>
     <string name="distance">Distance: %1$.2f meters</string>
     <string name="distance_in_kilometers">Distance: %1$d km %2$d meters</string>
     <string name="location_is_running">GPS location is running</string>
