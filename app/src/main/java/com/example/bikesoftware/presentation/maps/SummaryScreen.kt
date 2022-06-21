@@ -13,6 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.bikesoftware.R
+import com.example.bikesoftware.presentation.maps.Altitude.HIGHEST
+import com.example.bikesoftware.presentation.maps.Altitude.LOWEST
 import com.example.bikesoftware.ui.theme.TransparentBlack
 
 @Composable
@@ -22,19 +24,22 @@ fun SummaryScreen(viewModel: MapViewModel) {
         Card(
             modifier = Modifier
                 .height(dimensionResource(R.dimen.card_size))
-                .width(dimensionResource(R.dimen.card_size))
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.mid_padding))
                 .align(Alignment.Center),
             backgroundColor = TransparentBlack,
             shape = RoundedCornerShape(dimensionResource(R.dimen.small_padding)),
             elevation = 0.dp
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(dimensionResource(R.dimen.small_padding))
+                    .align(Alignment.Center)
+                    .padding(dimensionResource(R.dimen.small_padding)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    modifier = Modifier.align(Alignment.TopCenter),
                     text = stringResource(R.string.trip_summary),
                     color = Color.Green,
                     fontWeight = FontWeight.Bold
@@ -42,24 +47,22 @@ fun SummaryScreen(viewModel: MapViewModel) {
 
                 Text(
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = dimensionResource(R.dimen.mid_padding)),
+                        .padding(top = dimensionResource(R.dimen.small_padding)),
                     text = stringResource(R.string.trip_time, viewModel.getTripTimeSummary()),
                     color = Color.White
                 )
 
                 Text(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = dimensionResource(R.dimen.big_padding)),
                     text = stringResource(R.string.average_speed, viewModel.getAverageSpeed()),
                     color = Color.White
                 )
 
                 Text(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = dimensionResource(R.dimen.large_padding)),
+                    text = stringResource(R.string.highest_speed, viewModel.getHighestSpeed()),
+                    color = Color.White
+                )
+
+                Text(
                     text = if (viewModel.getTripDistance().first > 0) {
                         stringResource(R.string.distance_in_kilometers, viewModel.getTripDistance().first, viewModel.getTripDistance().second.toInt())
                     } else {
@@ -67,6 +70,29 @@ fun SummaryScreen(viewModel: MapViewModel) {
                     },
                     color = Color.White
                 )
+
+                val lowestAltitude = viewModel.getAltitude(LOWEST)
+                if (lowestAltitude > 0) {
+                    Text(
+                        text = stringResource(R.string.lowest_altitude, lowestAltitude),
+                        color = Color.White
+                    )
+                }
+
+                val highestAltitude = viewModel.getAltitude(HIGHEST)
+                if (highestAltitude > 0) {
+                    Text(
+                        text = stringResource(R.string.highest_altitude, highestAltitude),
+                        color = Color.White
+                    )
+                }
+
+                if (highestAltitude > 0 && lowestAltitude > 0) {
+                    Text(
+                        text = stringResource(R.string.altitude_diff, highestAltitude - lowestAltitude),
+                        color = Color.White
+                    )
+                }
             }
         }
     }

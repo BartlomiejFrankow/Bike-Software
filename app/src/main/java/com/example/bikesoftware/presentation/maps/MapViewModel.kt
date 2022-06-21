@@ -5,11 +5,10 @@ import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bikesoftware.presentation.maps.Altitude.*
 import com.example.bikesoftware.presentation.maps.TripState.BEGINNING
 import com.example.bikesoftware.utils.TIMER_PATTERN
-import com.example.useCases.GetAverageSpeedUseCase
-import com.example.useCases.InsertTripStateUseCase
-import com.example.useCases.ObservePolyLineUseCase
+import com.example.useCases.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +21,9 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val observePolyLinesUseCase: ObservePolyLineUseCase,
     private val getAverageSpeedUseCase: GetAverageSpeedUseCase,
-    private val isTripStartedUseCase: InsertTripStateUseCase
+    private val isTripStartedUseCase: InsertTripStateUseCase,
+    private val getHighestSpeedUseCase: GetHighestSpeedUseCase,
+    private val getLowestAndHighestAltitudeUseCase: GetLowestAndHighestAltitudeUseCase,
 ) : ViewModel() {
 
     private var startTripTime = 0L
@@ -101,12 +102,29 @@ class MapViewModel @Inject constructor(
 
     fun getAverageSpeed(): Int {
         var speed = 0
+        viewModelScope.launch { speed = getAverageSpeedUseCase() }
+        return speed
+    }
 
-        viewModelScope.launch {
-            speed = getAverageSpeedUseCase()
+    fun getHighestSpeed(): Int {
+        var speed = 0
+        viewModelScope.launch { speed = getHighestSpeedUseCase() }
+        return speed
+    }
+
+    fun getAltitude(altitudeType: Altitude): Int {
+        var altitudes = Pair(0, 0)
+
+        when (altitudeType) {
+            HIGHEST -> if (altitudes.second != 0) return altitudes.second
+            LOWEST -> if (altitudes.first != 0) return altitudes.first
         }
 
-        return speed
+        viewModelScope.launch {
+            altitudes = Pair(getLowestAndHighestAltitudeUseCase().first, getLowestAndHighestAltitudeUseCase().second)
+        }
+
+        return if (altitudeType == HIGHEST) altitudes.second else altitudes.first
     }
 
     fun getLatLngBounds(): LatLngBounds {
@@ -124,4 +142,9 @@ enum class TripState {
     BEGINNING,
     STARTED,
     FINISHED
+}
+
+enum class Altitude {
+    HIGHEST,
+    LOWEST
 }

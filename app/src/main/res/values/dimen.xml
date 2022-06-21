@@ -15,7 +15,7 @@
     <dimen name="start_stop_bottom_padding">256dp</dimen>
 
     // Card
-    <dimen name="card_size">200dp</dimen>
+    <dimen name="card_size">256dp</dimen>
 
     // Speed clock
     <dimen name="speed_padding_bottom">140dp</dimen>

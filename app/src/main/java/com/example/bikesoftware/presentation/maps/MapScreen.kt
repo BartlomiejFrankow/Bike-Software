@@ -105,7 +105,7 @@ fun MapScreen(
                 BEGINNING -> {
                     zoom(cameraPositionState, beginningZoom)
 
-                    delay(3000) // one time delay for zoom animation
+                    delay(2000) // one time delay for zoom animation
                     beginningZoom = MID_ZOOM
                 }
                 STARTED -> {
