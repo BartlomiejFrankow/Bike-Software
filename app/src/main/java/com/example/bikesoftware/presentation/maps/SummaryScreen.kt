@@ -108,9 +108,11 @@ fun SummaryScreen(viewModel: MapViewModel, onCloseClick: () -> Unit) {
 
                 Text(
                     text = if (viewModel.getTripDistance().first > 0) {
-                        resources.getQuantityString(R.plurals.distance_in_kilometers, viewModel.getTripDistance().first, viewModel.getTripDistance().first)
+                        val distance = viewModel.getTripDistance()
+                        resources.getQuantityString(R.plurals.distance_in_kilometers, distance.second, distance.first, distance.second) // id, quantity, arg1, arg2
                     } else {
-                        resources.getQuantityString(R.plurals.distance, viewModel.getTripDistance().second, viewModel.getTripDistance().second)
+                        val distance = viewModel.getTripDistance()
+                        resources.getQuantityString(R.plurals.distance, distance.second, distance.second) // id, quantity, arg1
                     },
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
