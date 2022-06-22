@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Bike software</string>
-    <string name="no_location_permission_message">Please turn on your location permission</string>
+    <string name="no_location_permission_message">Please turn on your location permission from app settings</string>
     <string name="start_trip">Start trip</string>
     <string name="stop_trip">Stop trip</string>
     <string name="trip_summary">Trip summary</string>
@@ -9,15 +9,24 @@
     <string name="highest_speed">Highest speed: %1$d km/h</string>
     <string name="lowest_altitude">Low altitude: %1$d m.a.s.l.</string>
     <string name="highest_altitude">High altitude: %1$d m.a.s.l.</string>
-    <string name="altitude_diff">Altitude diff: %1$d meters</string>
-    <string name="distance">Distance: %1$.2f meters</string>
-    <string name="distance_in_kilometers">Distance: %1$d km %2$d meters</string>
     <string name="location_is_running">GPS location is running</string>
     <string name="gps_off_info">Bike Software: GPS signal lost</string>
     <string name="gps_back">Bike Software: GPS signal came back</string>
     <string name="location_permission_title">Warning</string>
-    <string name="location_permission_description">We need your background location permission from app settings to localize your trip when device is locked</string>
+    <string name="location_permission_description">We need your background location permission from system app settings to localize your trip when device is locked</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="kilometers_per_hour">Km/h</string>
     <string name="close">Close</string>
+    <plurals name="altitude_diff">
+        <item quantity="one" formatted="true">Altitude diff: %1$d meter</item>
+        <item quantity="many" formatted="true">Altitude diff: %1$d meters</item>
+    </plurals>
+    <plurals name="distance">
+        <item quantity="one" formatted="true">Distance: %1$d meter</item>
+        <item quantity="many" formatted="true">Distance: %1$d meters</item>
+    </plurals>
+    <plurals name="distance_in_kilometers">
+        <item quantity="one" formatted="true">Distance: %1$d km %2$d meter</item>
+        <item quantity="many" formatted="true">Distance: %1$d km %2$d meters</item>
+    </plurals>
 </resources>
