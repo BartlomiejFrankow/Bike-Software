@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -27,6 +28,8 @@ import com.example.bikesoftware.ui.theme.TransparentBlack65
 
 @Composable
 fun SummaryScreen(viewModel: MapViewModel, onCloseClick: () -> Unit) {
+
+    val resources = LocalContext.current.resources
 
     Box {
         Card(
@@ -105,9 +108,9 @@ fun SummaryScreen(viewModel: MapViewModel, onCloseClick: () -> Unit) {
 
                 Text(
                     text = if (viewModel.getTripDistance().first > 0) {
-                        stringResource(R.string.distance_in_kilometers, viewModel.getTripDistance().first, viewModel.getTripDistance().second.toInt())
+                        resources.getQuantityString(R.plurals.distance_in_kilometers, viewModel.getTripDistance().first, viewModel.getTripDistance().first)
                     } else {
-                        stringResource(R.string.distance, viewModel.getTripDistance().second)
+                        resources.getQuantityString(R.plurals.distance, viewModel.getTripDistance().second, viewModel.getTripDistance().second)
                     },
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
@@ -139,7 +142,7 @@ fun SummaryScreen(viewModel: MapViewModel, onCloseClick: () -> Unit) {
 
                 if (highestAltitude > 0 && lowestAltitude > 0) {
                     Text(
-                        text = stringResource(R.string.altitude_diff, highestAltitude - lowestAltitude),
+                        text = resources.getQuantityString(R.plurals.altitude_diff, highestAltitude - lowestAltitude, highestAltitude - lowestAltitude),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily(Font(R.font.lexend_thin)),

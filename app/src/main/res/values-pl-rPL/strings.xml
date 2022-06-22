@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bike software</string>
+    <string name="no_location_permission_message">Proszę włącz pozwolenie na lokalizację z ustawień aplikacji</string>
+    <string name="start_trip">Rozpocznij trasę</string>
+    <string name="stop_trip">Zakończ trasę</string>
+    <string name="trip_summary">Podsumowanie trasy</string>
+    <string name="trip_time">Czas trasy: %1$s</string>
+    <string name="average_speed">Średnia prędkość: %1$d km/h</string>
+    <string name="highest_speed">Najwyższa prędkość: %1$d km/h</string>
+    <string name="lowest_altitude">Niska wysokość: %1$d m.a.s.l.</string>
+    <string name="highest_altitude">Wysoka wysokość: %1$d m.a.s.l.</string>
+    <string name="location_is_running">Lokalizacja GPS aktywna</string>
+    <string name="gps_off_info">Bike Software: sygnał GPS utracony</string>
+    <string name="gps_back">Bike Software: sygnał GPS dostępny</string>
+    <string name="location_permission_title">Uwaga</string>
+    <string name="location_permission_description">Potrzebujemy pozwolenia na lokalizację w tle z ustawień systemowych aby lokalizować Twoją trasę gdy urządzenie jest zablokowane</string>
+    <string name="go_to_settings">Idź do ustawień</string>
+    <string name="kilometers_per_hour">Km/h</string>
+    <string name="close">Zamknij</string>
+    <plurals name="altitude_diff">
+        <item quantity="one" formatted="true">Różnica wysokości: %1$d metr</item>
+        <item quantity="few" formatted="true">Różnica wysokości: %1$d metry</item>
+        <item quantity="many" formatted="true">Różnica wysokości: %1$d metrów</item>
+    </plurals>
+    <plurals name="distance">
+        <item quantity="one" formatted="true">Dystans: %1$d metr</item>
+        <item quantity="few" formatted="true">Dystans: %1$d metry</item>
+        <item quantity="many" formatted="true">Dystans: %1$d metrów</item>
+    </plurals>
+    <plurals name="distance_in_kilometers">
+        <item quantity="one" formatted="true">Dystans: %1$d km %2$d metr</item>
+        <item quantity="few" formatted="true">Dystans: %1$d km %2$d metry</item>
+        <item quantity="many" formatted="true">Dystans: %1$d km %2$d metrów</item>
+    </plurals>
+</resources>
