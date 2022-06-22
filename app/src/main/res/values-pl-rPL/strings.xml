@@ -8,8 +8,8 @@
     <string name="trip_time">Czas trasy: %1$s</string>
     <string name="average_speed">Średnia prędkość: %1$d km/h</string>
     <string name="highest_speed">Najwyższa prędkość: %1$d km/h</string>
-    <string name="lowest_altitude">Niska wysokość: %1$d m.a.s.l.</string>
-    <string name="highest_altitude">Wysoka wysokość: %1$d m.a.s.l.</string>
+    <string name="lowest_altitude">Niska wysokość: %1$d m.n.p.m</string>
+    <string name="highest_altitude">Wysoka wysokość: %1$d m.n.p.m</string>
     <string name="location_is_running">Lokalizacja GPS aktywna</string>
     <string name="gps_off_info">Bike Software: sygnał GPS utracony</string>
     <string name="gps_back">Bike Software: sygnał GPS dostępny</string>
