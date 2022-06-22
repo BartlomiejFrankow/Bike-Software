@@ -14,3 +14,7 @@ Thanks to this, you do not have to worry about using your location for another p
 - SQLDelight
 - Jetpack Compose
 - MVVM
+
+## Languages
+- English
+- Polish
