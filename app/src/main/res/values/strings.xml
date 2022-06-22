@@ -18,15 +18,27 @@
     <string name="kilometers_per_hour">Km/h</string>
     <string name="close">Close</string>
     <plurals name="altitude_diff">
+        <item quantity="zero" formatted="true">Altitude diff: %1$d meters</item>
         <item quantity="one" formatted="true">Altitude diff: %1$d meter</item>
+        <item quantity="two" formatted="true">Altitude diff: %1$d meters</item>
+        <item quantity="few" formatted="true">Altitude diff: %1$d meters</item>
         <item quantity="many" formatted="true">Altitude diff: %1$d meters</item>
+        <item quantity="other" formatted="true">Altitude diff: %1$d meters</item>
     </plurals>
     <plurals name="distance">
+        <item quantity="zero" formatted="true">Distance: %1$d meters</item>
         <item quantity="one" formatted="true">Distance: %1$d meter</item>
+        <item quantity="two" formatted="true">Distance: %1$d meters</item>
+        <item quantity="few" formatted="true">Distance: %1$d meters</item>
         <item quantity="many" formatted="true">Distance: %1$d meters</item>
+        <item quantity="other" formatted="true">Distance: %1$d meters</item>
     </plurals>
     <plurals name="distance_in_kilometers">
+        <item quantity="zero" formatted="true">Distance: %1$d km %2$d meters</item>
         <item quantity="one" formatted="true">Distance: %1$d km %2$d meter</item>
+        <item quantity="two" formatted="true">Distance: %1$d km %2$d meters</item>
+        <item quantity="few" formatted="true">Distance: %1$d km %2$d meters</item>
         <item quantity="many" formatted="true">Distance: %1$d km %2$d meters</item>
+        <item quantity="other" formatted="true">Distance: %1$d km %2$d meters</item>
     </plurals>
 </resources>
