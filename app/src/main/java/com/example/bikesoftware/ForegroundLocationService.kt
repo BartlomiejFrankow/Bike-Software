@@ -31,7 +31,8 @@ import javax.inject.Inject
 
 private const val LOCATION_REQUEST_INTERVAL = 2000L
 private const val LOCATION_REQUEST_FASTEST_INTERVAL = 1000L
-private const val DISTANCE_IN_METERS = 50
+private const val MAX_DISTANCE_IN_METERS = 40 // 40 value means 144 km/h for 1 sec interval and 72 km/h for 2 sec interval
+private const val MIN_DISTANCE_IN_METERS = 3
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -138,10 +139,7 @@ class ForegroundLocationService : Service() {
                     val speedInKph = it.speed.toKph()
                     val newLocation = Location(it.latitude, it.longitude)
 
-                    if (polylineLocations.isEmpty()
-                        || areNotSameLocations(newLocation, polylineLocations.last())
-                        && isDistanceOk(newLocation, polylineLocations.last())
-                    ) {
+                    if (polylineLocations.isEmpty() || isDistanceOk(newLocation, polylineLocations.last())) {
                         val gson = Gson()
 
                         polylineLocations.add(newLocation)
@@ -162,10 +160,9 @@ class ForegroundLocationService : Service() {
     private fun isDistanceOk(newLocation: Location, lastKnownLocation: Location): Boolean {
         val distanceInMeters = FloatArray(1)
         distanceBetween(newLocation.latitude, newLocation.longitude, lastKnownLocation.latitude, lastKnownLocation.longitude, distanceInMeters)
-        return distanceInMeters[0] < DISTANCE_IN_METERS
-    }
 
-    private fun areNotSameLocations(first: Location, second: Location) = first != second
+        return distanceInMeters[0].toInt() in MIN_DISTANCE_IN_METERS..MAX_DISTANCE_IN_METERS
+    }
 
     private val locationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
